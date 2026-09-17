@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentin Nigolian — Digital Geometry & Geometry Processing</title>
+<meta name="description" content="Valentin Nigolian — research on volumetric mapping for tetrahedral meshes, and C++ engineering for geometry processing." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Site navigation">
+    <div class="sidebar-top">
+      <div class="site-name" data-site-name></div>
+      <div class="site-role mono" data-site-role></div>
+      <ul class="nav-list">
+        <li><a href="index.html">Work</a></li>
+        <li><a href="hobbies.html">Hobbies</a></li>
+        <li><a href="cats.html">Cats</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-bottom">
+      <ul class="sidebar-links" id="sidebar-links"></ul>
+      <a class="cv-button" id="cv-button" href="cv.pdf">Download CV</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="content">
+
+      <div class="hero">
+        <div>
+          <h1 data-site-name></h1>
+          <p class="tagline">I work on volumetric mapping for tetrahedral meshes, and on the C++ that makes geometric algorithms fast enough to use.</p>
+        </div>
+        <div class="hero-canvas-wrap" aria-hidden="true">
+          <canvas id="hero-canvas"></canvas>
+        </div>
+      </div>
+
+      <section aria-labelledby="about-h">
+        <div class="section-heading">
+          <h2 id="about-h">About</h2>
+        </div>
+        <ul class="about-list" id="about-list"></ul>
+      </section>
+
+      <section aria-labelledby="papers-h">
+        <div class="section-heading">
+          <h2 id="papers-h">Papers</h2>
+          <span class="section-count mono" id="papers-count">00</span>
+        </div>
+        <div class="entry-list" id="papers-list"></div>
+      </section>
+
+      <section aria-labelledby="projects-h">
+        <div class="section-heading">
+          <h2 id="projects-h">Projects</h2>
+          <span class="section-count mono" id="projects-count">00</span>
+        </div>
+        <div class="entry-list" id="projects-list"></div>
+      </section>
+
+      <section aria-labelledby="awards-h">
+        <div class="section-heading">
+          <h2 id="awards-h">Awards & Funding</h2>
+          <span class="section-count mono" id="awards-count">00</span>
+        </div>
+        <div class="entry-list" id="awards-list"></div>
+      </section>
+
+      <section aria-labelledby="experience-h">
+        <div class="section-heading">
+          <h2 id="experience-h">Experience</h2>
+        </div>
+        <div class="timeline" id="experience-timeline"></div>
+      </section>
+
+      <footer>
+        <span data-site-name></span> · <span id="footer-location">Biel/Bienne, Switzerland</span>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
