@@ -1,7 +1,6 @@
 /**
- * Renders content from data.js into whichever page loaded it, and drives
- * the hero mesh-morph canvas. Nothing here needs editing to add content —
- * see data.js.
+ * Renders content from data.js into the page. Nothing here needs editing
+ * to add content — see data.js.
  */
 
 function el(tag, className, html) {
@@ -11,13 +10,23 @@ function el(tag, className, html) {
   return node;
 }
 
+function externalLink(href, label) {
+  const a = el("a", null, label);
+  a.href = href;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  return a;
+}
+
 function renderCount(id, count) {
   const node = document.getElementById(id);
   if (node) node.textContent = String(count).padStart(2, "0");
 }
 
 /* ---------------------------------------------------------------------
-   Papers, Projects, Awards — bibliographic list rows
+   Papers — bibliographic list rows. Both links are external (DOI/project
+   page, and an external PDF host like arXiv or the publisher) — nothing
+   here is hosted on this site.
 --------------------------------------------------------------------- */
 function renderPapers() {
   const root = document.getElementById("papers-list");
@@ -30,8 +39,8 @@ function renderPapers() {
     main.appendChild(el("div", "entry-title", p.title));
     main.appendChild(el("div", "entry-meta", `${p.venue} — ${p.authors}`));
     const links = el("div", "entry-links");
-    if (p.link) links.appendChild(el("a", null, `<a href="${p.link}">Paper</a>`).firstElementChild);
-    if (p.pdf) links.appendChild(el("a", null, `<a href="${p.pdf}">PDF</a>`).firstElementChild);
+    if (p.link) links.appendChild(externalLink(p.link, "Paper ↗"));
+    if (p.pdf) links.appendChild(externalLink(p.pdf, "PDF ↗"));
     main.appendChild(links);
     if (p.tags && p.tags.length) {
       const tags = el("div", "entry-tags");
@@ -43,11 +52,14 @@ function renderPapers() {
   });
 }
 
-function renderProjects() {
-  const root = document.getElementById("projects-list");
+/* ---------------------------------------------------------------------
+   Code Projects
+--------------------------------------------------------------------- */
+function renderCodeProjects() {
+  const root = document.getElementById("code-projects-list");
   if (!root) return;
-  renderCount("projects-count", PROJECTS.length);
-  PROJECTS.forEach((proj) => {
+  renderCount("code-projects-count", CODE_PROJECTS.length);
+  CODE_PROJECTS.forEach((proj) => {
     const row = el("div", `entry${proj.status === "archived" ? " is-archived" : ""}`);
     row.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
     const main = el("div");
@@ -55,7 +67,7 @@ function renderProjects() {
     main.appendChild(el("div", "entry-desc", proj.description));
     if (proj.link) {
       const links = el("div", "entry-links");
-      links.appendChild(el("a", null, `<a href="${proj.link}">Repository</a>`).firstElementChild);
+      links.appendChild(externalLink(proj.link, "Repository ↗"));
       main.appendChild(links);
     }
     if (proj.tags && proj.tags.length) {
@@ -82,6 +94,18 @@ function renderAwards() {
     row.appendChild(main);
     root.appendChild(row);
   });
+  hideSectionIfEmpty("awards", AWARDS.length === 0);
+}
+
+/* Hides a section (and its sidebar link) entirely when its data array is
+   empty, e.g. AWARDS = [] before you have any to list. Comes back on its
+   own the moment you add an entry — nothing else to toggle by hand. */
+function hideSectionIfEmpty(sectionId, isEmpty) {
+  if (!isEmpty) return;
+  const section = document.getElementById(sectionId);
+  if (section) section.style.display = "none";
+  const navLink = document.querySelector(`.nav-list a[href="#${sectionId}"]`);
+  if (navLink && navLink.parentElement) navLink.parentElement.style.display = "none";
 }
 
 function renderAbout() {
@@ -107,160 +131,66 @@ function renderExperience() {
 }
 
 /* ---------------------------------------------------------------------
-   Hobbies / Cats — photo cards
---------------------------------------------------------------------- */
-function renderCardGrid(containerId, items, { withFact } = {}) {
-  const root = document.getElementById(containerId);
-  if (!root) return;
-  if (!items.length) {
-    root.appendChild(el("div", "empty-note", "Nothing here yet — add an entry in data.js."));
-    return;
-  }
-  items.forEach((item) => {
-    const card = el("div", "card");
-    const img = el("img");
-    img.src = item.image;
-    img.alt = item.name || item.title || "";
-    img.loading = "lazy";
-    card.appendChild(img);
-    const body = el("div", "card-body");
-    body.appendChild(el("div", "card-title", item.name || item.title));
-    body.appendChild(el("p", null, item.description));
-    if (withFact && item.fact) body.appendChild(el("div", "card-fact", item.fact));
-    card.appendChild(body);
-    root.appendChild(card);
-  });
-}
-
-/* ---------------------------------------------------------------------
-   Site chrome: sidebar name/role, links, CV button, active nav
+   Site chrome: name/role, profile photo, top contact bar, section nav
 --------------------------------------------------------------------- */
 function renderChrome() {
   document.querySelectorAll("[data-site-name]").forEach((n) => (n.textContent = SITE.name));
   document.querySelectorAll("[data-site-role]").forEach((n) => (n.textContent = SITE.role));
+  document.querySelectorAll("[data-site-tagline]").forEach((n) => (n.textContent = SITE.tagline));
 
-  const linksRoot = document.getElementById("sidebar-links");
-  if (linksRoot) {
-    SITE.links.forEach((l) => {
-      const a = el("a", null, l.label);
-      a.href = l.url;
-      linksRoot.appendChild(el("li")).appendChild(a);
-    });
+  const photo = document.getElementById("profile-pic");
+  if (photo) {
+    photo.src = SITE.photo;
+    photo.alt = `Photo of ${SITE.name}`;
   }
 
-  const cvBtn = document.getElementById("cv-button");
-  if (cvBtn) cvBtn.href = SITE.cv;
-
-  const path = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav-list a").forEach((a) => {
-    const href = a.getAttribute("href");
-    if (href === path || (path === "" && href === "index.html")) {
-      a.setAttribute("aria-current", "page");
-    }
-  });
+  const topbar = document.getElementById("topbar");
+  if (topbar) {
+    SITE.links.forEach((l) => topbar.appendChild(externalLink(l.url, l.label)));
+    const cv = el("a", "cv-button", "Download CV");
+    cv.href = SITE.cv;
+    topbar.appendChild(cv);
+  }
 }
 
-/* ---------------------------------------------------------------------
-   Hero canvas: a wireframe mesh morphing between two shapes.
-   A small, honest demo of the actual research area — not stock imagery.
---------------------------------------------------------------------- */
-function initHeroCanvas() {
-  const canvas = document.getElementById("hero-canvas");
-  if (!canvas) return;
+/* Highlights the sidebar nav item matching whichever section is in view. */
+function initScrollSpy() {
+  const links = Array.from(document.querySelectorAll(".nav-list a")).filter(
+    (a) => a.parentElement && a.parentElement.style.display !== "none"
+  );
+  const sections = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
 
-  const ctx = canvas.getContext("2d");
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const size = canvas.clientWidth || 180;
-  canvas.width = size * dpr;
-  canvas.height = size * dpr;
-  ctx.scale(dpr, dpr);
+  if (!sections.length || !("IntersectionObserver" in window)) return;
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const setActive = (id) => {
+    links.forEach((a) => {
+      if (a.getAttribute("href") === `#${id}`) {
+        a.setAttribute("aria-current", "page");
+      } else {
+        a.removeAttribute("aria-current");
+      }
+    });
+  };
 
-  // Two vertex sets of equal length: a rough icosahedron-like ring (shape A)
-  // and a cube-like ring (shape B), projected to 2D grid coordinates.
-  const N = 10;
-  const cx = size / 2;
-  const cy = size / 2;
-  const r = size * 0.32;
-
-  function ring(sides, phase, radiusScale) {
-    const pts = [];
-    for (let i = 0; i < N; i++) {
-      const a = phase + (i / N) * Math.PI * 2;
-      const wobble = 1 + 0.18 * Math.sin(sides * a);
-      pts.push({
-        x: cx + Math.cos(a) * r * radiusScale * wobble,
-        y: cy + Math.sin(a) * r * radiusScale * wobble,
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActive(entry.target.id);
       });
-    }
-    return pts;
-  }
+    },
+    { rootMargin: "-20% 0px -70% 0px" }
+  );
 
-  const shapeA = ring(3, 0, 1);
-  const shapeB = ring(4, Math.PI / N, 0.82);
-
-  // Edges: connect each vertex to its neighbors and to a couple of
-  // across-ring vertices, so it reads as a mesh rather than a polygon.
-  const edges = [];
-  for (let i = 0; i < N; i++) {
-    edges.push([i, (i + 1) % N]);
-    edges.push([i, (i + 3) % N]);
-  }
-
-  function lerp(a, b, t) {
-    return a + (b - a) * t;
-  }
-
-  function draw(t) {
-    ctx.clearRect(0, 0, size, size);
-    const points = shapeA.map((p, i) => ({
-      x: lerp(p.x, shapeB[i].x, t),
-      y: lerp(p.y, shapeB[i].y, t),
-    }));
-
-    ctx.strokeStyle = "#2648D6";
-    ctx.globalAlpha = 0.55;
-    ctx.lineWidth = 1;
-    edges.forEach(([i, j]) => {
-      ctx.beginPath();
-      ctx.moveTo(points[i].x, points[i].y);
-      ctx.lineTo(points[j].x, points[j].y);
-      ctx.stroke();
-    });
-
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "#17181C";
-    points.forEach((p) => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  if (reduceMotion) {
-    draw(0.5); // freeze on a single mid-morph frame
-    return;
-  }
-
-  const period = 4200; // ms for a full there-and-back cycle
-  function frame(now) {
-    const phase = (now % period) / period; // 0..1
-    const t = (1 - Math.cos(phase * Math.PI * 2)) / 2; // smooth ease there-and-back
-    draw(t);
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  sections.forEach((s) => observer.observe(s));
+  setActive(sections[0].id); // default to first section on load
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   renderChrome();
   renderAbout();
   renderPapers();
-  renderProjects();
+  renderCodeProjects();
   renderAwards();
   renderExperience();
-  renderCardGrid("hobbies-grid", typeof HOBBIES !== "undefined" ? HOBBIES : []);
-  renderCardGrid("cats-grid", typeof CATS !== "undefined" ? CATS : [], { withFact: true });
-  initHeroCanvas();
+  initScrollSpy();
 });

@@ -13,43 +13,45 @@
 <body>
 
 <div class="shell">
-  <nav class="sidebar" aria-label="Site navigation">
+  <nav class="sidebar" aria-label="Section navigation">
     <div class="sidebar-top">
       <div class="site-name" data-site-name></div>
       <div class="site-role mono" data-site-role></div>
       <ul class="nav-list">
-        <li><a href="index.html">Work</a></li>
-        <li><a href="hobbies.html">Hobbies</a></li>
-        <li><a href="cats.html">Cats</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#papers">Papers</a></li>
+        <li><a href="#code-projects">Code Projects</a></li>
+        <li><a href="#awards">Awards & Funding</a></li>
+        <li><a href="#experience">Experience</a></li>
       </ul>
-    </div>
-    <div class="sidebar-bottom">
-      <ul class="sidebar-links" id="sidebar-links"></ul>
-      <a class="cv-button" id="cv-button" href="cv.pdf">Download CV</a>
     </div>
   </nav>
 
   <main>
     <div class="content">
 
+      <div class="topbar mono" id="topbar"></div>
+
       <div class="hero">
         <div>
           <h1 data-site-name></h1>
-          <p class="tagline">I work on volumetric mapping for tetrahedral meshes, and on the C++ that makes geometric algorithms fast enough to use.</p>
+          <p class="tagline" data-site-tagline></p>
         </div>
-        <div class="hero-canvas-wrap" aria-hidden="true">
-          <canvas id="hero-canvas"></canvas>
+        <div class="hero-visuals">
+          <div class="profile-pic-wrap">
+            <img id="profile-pic" src="images/black_square.png" alt="" />
+          </div>
         </div>
       </div>
 
-      <section aria-labelledby="about-h">
+      <section id="about" aria-labelledby="about-h">
         <div class="section-heading">
           <h2 id="about-h">About</h2>
         </div>
         <ul class="about-list" id="about-list"></ul>
       </section>
 
-      <section aria-labelledby="papers-h">
+      <section id="papers" aria-labelledby="papers-h">
         <div class="section-heading">
           <h2 id="papers-h">Papers</h2>
           <span class="section-count mono" id="papers-count">00</span>
@@ -57,15 +59,15 @@
         <div class="entry-list" id="papers-list"></div>
       </section>
 
-      <section aria-labelledby="projects-h">
+      <section id="code-projects" aria-labelledby="code-projects-h">
         <div class="section-heading">
-          <h2 id="projects-h">Projects</h2>
-          <span class="section-count mono" id="projects-count">00</span>
+          <h2 id="code-projects-h">Code Projects</h2>
+          <span class="section-count mono" id="code-projects-count">00</span>
         </div>
-        <div class="entry-list" id="projects-list"></div>
+        <div class="entry-list" id="code-projects-list"></div>
       </section>
 
-      <section aria-labelledby="awards-h">
+      <section id="awards" aria-labelledby="awards-h">
         <div class="section-heading">
           <h2 id="awards-h">Awards & Funding</h2>
           <span class="section-count mono" id="awards-count">00</span>
@@ -73,7 +75,7 @@
         <div class="entry-list" id="awards-list"></div>
       </section>
 
-      <section aria-labelledby="experience-h">
+      <section id="experience" aria-labelledby="experience-h">
         <div class="section-heading">
           <h2 id="experience-h">Experience</h2>
         </div>
@@ -81,7 +83,7 @@
       </section>
 
       <footer>
-        <span data-site-name></span> · <span id="footer-location">Biel/Bienne, Switzerland</span>
+        <span data-site-name></span> · Biel/Bienne, Switzerland
       </footer>
 
     </div>

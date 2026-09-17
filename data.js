@@ -2,9 +2,9 @@
  * SITE CONTENT
  * ------------
  * This is the only file you should need to touch to add or change content.
- * Every list on the site (papers, projects, awards, experience, hobbies,
- * cats) is rendered from the arrays below by script.js. To add something
- * new, add one object to the relevant array — nothing else needs to change.
+ * Every list on the site (papers, code projects, awards, experience) is
+ * rendered from the arrays below by script.js. To add something new, add
+ * one object to the relevant array — nothing else needs to change.
  *
  * Dates: use "YYYY" or "YYYY–YYYY" (en dash) or "YYYY–present".
  * Anywhere you see [ADD: ...], replace it with the real value.
@@ -12,15 +12,15 @@
 
 const SITE = {
   name: "Valentin Nigolian",
-  role: "Digital geometry & geometry processing",
+  role: "Geometry Processing Research Scientist",
   tagline:
-    "I work on volumetric mapping for tetrahedral meshes, and on the C++ that makes geometric algorithms fast enough to use.",
+    "Although my main focus is on volumetric mapping for tetrahedral meshes, I'm looking for opportunities to bring my geometry processing and C++ expertise to the world! If you've got a related job, or if you want to collaborate on whatever, drop me a line!",
   location: "Biel/Bienne, Switzerland",
-  email: "valentin.nigolian@gmail.com",
+  photo: "images/black_square.png", // swap for a real photo whenever you have one
   cv: "cv.pdf",
   links: [
     { label: "Email", url: "mailto:valentin.nigolian@gmail.com" },
-    { label: "GitHub", url: "[ADD: github.com/vnigolian]" },
+    { label: "GitHub", url: "https://github.com/vnigolian" },
     { label: "Google Scholar", url: "[ADD: scholar.google.com profile link]" },
     { label: "LinkedIn", url: "[ADD: linkedin.com/in/... ]" },
   ],
@@ -28,10 +28,12 @@ const SITE = {
 
 // One line each, kept short: what you'd say about yourself in an elevator.
 const ABOUT = [
-  "PhD in digital geometry, University of Bern (2024). Master's from EPFL (2019), including six months in Tokyo on my Master's thesis and two more during my PhD.",
-  "One year of industry experience at GaitUp/Mindmaze, where I was sole designer of a cross-platform C++ SDK for body movement analysis.",
-  "Core strengths: modern C++ (14–23), 3D geometric algorithms, mesh processing, numerical optimization (Eigen), Python, CI/CD.",
-  "Long-term goal: teaching at a Fachhochschule, alongside continued research.",
+  "After obtaining my PhD in 2024 at the University of Bern under the supervision of David Bommes, I stayed for a 15-months-long postdoc in his group.",
+  "Before that, I got a Master's degree from EPFL (2019), which included a 6 months Masters Thesis in Tokyo, under Takeo Igarashi's supervision.",
+  "I also dipped my toes in the industry world over the course of a one year position as Software Engineer at GaitUp/Mindmaze, where I was the sole designer of a cross-platform C++ SDK for body movement analysis.",
+  "My core strengths include geometry processing algorithms,  numerical optimization, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
+  "I'm also a Blender and Unreal Engine enjoyer, always looking for ways to use these tools to enhance scientific visualisation.",
+  "While unemployed, I'm focusing on improving my skills in GPU computation/rendering, and looking into AI applications to the geometry processing world."
 ];
 
 const PAPERS = [
@@ -40,8 +42,10 @@ const PAPERS = [
     venue: "SIGGRAPH",
     year: "[ADD: year]",
     authors: "[ADD: author list, you bolded or first-author as applicable]",
+    // Both are external links (journal/DOI page, publisher or arXiv PDF) —
+    // nothing here is hosted on this site, so there's no file to keep in sync.
     link: "[ADD: DOI or project page URL]",
-    pdf: "[ADD: pdf path or URL]",
+    pdf: "[ADD: external PDF URL, e.g. arXiv or publisher link]",
     tags: ["tetrahedral meshing", "volumetric mapping"],
   },
   {
@@ -50,13 +54,13 @@ const PAPERS = [
     year: "[ADD: year]",
     authors: "[ADD: authors]",
     link: "[ADD: link]",
-    pdf: "[ADD: pdf path or URL]",
+    pdf: "[ADD: external PDF URL]",
     tags: ["isogeometric analysis"],
   },
   // Add more papers here — same shape as above.
 ];
 
-const PROJECTS = [
+const CODE_PROJECTS = [
   {
     name: "TetWeave",
     // Renaming tomorrow? Just change `name` — nothing else references the old one.
@@ -67,32 +71,30 @@ const PROJECTS = [
     status: "active",
   },
   {
-    name: "GPU Sandbox",
-    description:
-      "A portfolio project exploring GPU computing and graphics programming outside the mesh-processing day job.",
+    name: "[ADD: project name]",
+    description: "[ADD: one or two sentences on what it does]",
     link: "[ADD: repo URL]",
-    tags: ["GPU", "graphics"],
+    tags: ["[ADD: tag]"],
     status: "active",
   },
   {
-    name: "FSU Surface Registration",
-    description:
-      "A Python pipeline for registering FSU mesh surfaces, used to set up boundary conditions for downstream simulation.",
-    link: "[ADD: repo URL, if public]",
-    tags: ["Python", "registration"],
-    status: "archived",
+    name: "[ADD: project name]",
+    description: "[ADD: one or two sentences on what it does]",
+    link: "[ADD: repo URL]",
+    tags: ["[ADD: tag]"],
+    status: "active",
   },
-  // Add new projects here. `status` is just "active" or "archived" —
+  // Add new code projects here. `status` is "active" or "archived" —
   // used only to fade archived items slightly, not to hide them.
 ];
 
 const AWARDS = [
-  {
-    title: "[ADD: award/scholarship/prize name]",
-    org: "[ADD: awarding body]",
-    year: "[ADD: year]",
-    description: "[ADD: one line on what it recognized]",
-  },
+ // {
+ //   title: "[ADD: award/scholarship/prize name]",
+ //   org: "[ADD: awarding body]",
+ //   year: "[ADD: year]",
+ //   description: "[ADD: one line on what it recognized]",
+ // },
   // Add more awards here.
 ];
 
@@ -138,23 +140,4 @@ const EXPERIENCE = [
       "Master's thesis work included a six-month research stay in Tokyo.",
   },
   // Add more roles here, most recent first.
-];
-
-const HOBBIES = [
-  {
-    title: "[ADD: hobby name]",
-    description: "[ADD: a few sentences — what it is, why you like it]",
-    image: "[ADD: images/hobby-1.jpg]",
-  },
-  // Add more hobbies here.
-];
-
-const CATS = [
-  {
-    name: "[ADD: cat's name]",
-    description: "[ADD: a few sentences about them]",
-    image: "[ADD: images/cat-1.jpg]",
-    fact: "[ADD: one specific, slightly absurd fact about this cat]",
-  },
-  // Add more cats here.
 ];
