@@ -16,7 +16,7 @@ const SITE = {
   tagline:
     "Although my main focus is on volumetric mapping for tetrahedral meshes, I'm looking for opportunities to bring my geometry processing and C++ expertise to the world! If you've got a related job, or if you want to collaborate on whatever, drop me a line!",
   location: "Biel/Bienne, Switzerland",
-  photo: "images/val.jpg", // swap for a real photo whenever you have one
+  photo: "images/val_fun.jpg", // swap for a real photo whenever you have one
   cv: "Valentin-Nigolian-CV-2026.pdf",
   links: [
     { label: "Email", url: "mailto:valentin.nigolian@gmail.com" },
@@ -129,11 +129,11 @@ const PAPERS = [
 
 const CODE_PROJECTS = [
   {
-    name: "TetWeave",
+    name: "TetSweep (Coming VERY SOON)",
     // Renaming tomorrow? Just change `name` — nothing else references the old one.
     description:
       "A C++ library for generating tetrahedral meshes directly from parametric curves and surfaces, built around a shrink-and-expand boundary-deformation framework.",
-    link: "[ADD: repo URL]",
+    link: "https://github.com/vnigolian/TetSweep",
     tags: ["C++", "tetrahedral meshing"],
     status: "active",
     image: "images/para_helicoidal_ring.png"
