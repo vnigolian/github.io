@@ -11,8 +11,12 @@ index.html      The whole site — sections: About, Papers, Code Projects,
 data.js         ALL content lives here — edit this to add/change things
 script.js       Renders data.js into the page
 styles.css      All styling
+fetch-assets.sh Downloads the paper PDFs/teaser images into papers/ and
+                 images/papers/ — run this once, see below
+papers/         Paper PDFs (populated by fetch-assets.sh)
 cv.pdf          Your CV — not included, see below
-images/         black_square.png (profile picture placeholder), and
+images/         black_square.png (profile picture placeholder), papers/
+                 (teaser images, populated by fetch-assets.sh), and
                  anything else you add
 ```
 
@@ -20,14 +24,38 @@ The left sidebar links to sections on this one page (`#about`, `#papers`,
 etc.), not separate pages — it highlights whichever section is currently in
 view as you scroll.
 
+## Fetching the paper PDFs and images
+
+`data.js` points each paper's `pdf` and `image` at local files under
+`papers/` and `images/papers/`, but those files aren't in this zip — I
+can't reach the hosts they come from (algohex.eu, EPFL, U-Tokyo) from the
+sandbox this was built in. Run this once from the repo root, from a
+machine with normal internet access:
+
+```bash
+bash fetch-assets.sh
+```
+
+It downloads each PDF and teaser image straight from its original source
+into the right place — nothing to rename or move afterward. Re-run it any
+time (e.g. once the SIGGRAPH Asia 2026 paper's PDF becomes public, or
+after you add a paper of your own with the same pattern). The one
+exception is the RO-MAN 2017 paper, which has no free PDF anywhere — its
+`pdf` field in `data.js` stays pointed at the paywalled DOI.
+
 ## Adding new content
 
 You should almost never need to touch `index.html`. Open `data.js` and:
 
-- **New paper** → add an object to `PAPERS`. Both `link` and `pdf` are
-  external URLs (a DOI/project page, and an external PDF host like arXiv
-  or the publisher) — nothing is hosted in this repo, so there's no file
-  to keep in sync.
+- **New paper** → add an object to `PAPERS`. `link` is the paper's project
+  or DOI page; `pdf` can be either a local path under `papers/` (add the
+  matching download line to `fetch-assets.sh`) or an external URL if
+  there's no free PDF (see the RO-MAN entry for the pattern). Optional
+  fields: `image` (a representative figure — same local-or-external
+  choice as `pdf`), `abstract` and `bibtex` (both render as collapsed
+  dropdowns under the paper's links, with a copy button on the BibTeX
+  block). Leave any of the three out and that part simply doesn't render
+  for that paper.
 - **New code project, or renaming one (e.g. TetWeave)** → add or edit an
   object in `CODE_PROJECTS`. Renaming is just changing the `name` field.
 - **New award** → add an object to `AWARDS`. It's currently `[]`, and the

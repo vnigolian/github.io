@@ -23,10 +23,50 @@ function renderCount(id, count) {
   if (node) node.textContent = String(count).padStart(2, "0");
 }
 
+function thumb(src) {
+  const img = el("img", "entry-thumb");
+  img.src = src || "images/black_square.png";
+  img.alt = "";
+  img.loading = "lazy";
+  return img;
+}
+
+/* Copies text to the clipboard and briefly swaps the button label to
+   confirm it, falling back to a hidden-textarea copy on older browsers. */
+function copyText(text, btn) {
+  const original = btn.textContent;
+  const confirm = () => {
+    btn.textContent = "Copied!";
+    setTimeout(() => (btn.textContent = original), 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(confirm, () => fallbackCopy(text, confirm));
+  } else {
+    fallbackCopy(text, confirm);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+    done();
+  } catch (e) {
+    /* clipboard unavailable — silently give up */
+  }
+  document.body.removeChild(ta);
+}
+
 /* ---------------------------------------------------------------------
    Papers — bibliographic list rows. Both links are external (DOI/project
    page, and an external PDF host like arXiv or the publisher) — nothing
-   here is hosted on this site.
+   here is hosted on this site. Abstract and BibTeX are collapsed by
+   default and toggle open, with a copy button on the BibTeX block.
 --------------------------------------------------------------------- */
 function renderPapers() {
   const root = document.getElementById("papers-list");
@@ -34,19 +74,63 @@ function renderPapers() {
   renderCount("papers-count", PAPERS.length);
   PAPERS.forEach((p) => {
     const row = el("div", "entry");
-    row.appendChild(el("div", "entry-year mono", p.year));
+    const media = el("div", "entry-media");
+    media.appendChild(thumb(p.image));
+    media.appendChild(el("div", "entry-year mono", p.year));
+    row.appendChild(media);
+
     const main = el("div");
     main.appendChild(el("div", "entry-title", p.title));
     main.appendChild(el("div", "entry-meta", `${p.venue} — ${p.authors}`));
+
     const links = el("div", "entry-links");
     if (p.link) links.appendChild(externalLink(p.link, "Paper ↗"));
     if (p.pdf) links.appendChild(externalLink(p.pdf, "PDF ↗"));
+
+    let abstractPanel = null;
+    let bibtexPanel = null;
+
+    if (p.abstract) {
+      const toggle = el("button", "entry-toggle mono", "Abstract");
+      toggle.type = "button";
+      abstractPanel = el("div", "entry-panel");
+      abstractPanel.hidden = true;
+      abstractPanel.appendChild(el("p", null, p.abstract));
+      toggle.addEventListener("click", () => {
+        abstractPanel.hidden = !abstractPanel.hidden;
+      });
+      links.appendChild(toggle);
+    }
+
+    if (p.bibtex) {
+      const toggle = el("button", "entry-toggle mono", "BibTeX");
+      toggle.type = "button";
+      bibtexPanel = el("div", "entry-panel");
+      bibtexPanel.hidden = true;
+      const pre = el("pre", "entry-bibtex mono");
+      pre.textContent = p.bibtex;
+      bibtexPanel.appendChild(pre);
+      const copyBtn = el("button", "entry-copy mono", "Copy");
+      copyBtn.type = "button";
+      copyBtn.addEventListener("click", () => copyText(p.bibtex, copyBtn));
+      bibtexPanel.appendChild(copyBtn);
+      toggle.addEventListener("click", () => {
+        bibtexPanel.hidden = !bibtexPanel.hidden;
+      });
+      links.appendChild(toggle);
+    }
+
     main.appendChild(links);
+
     if (p.tags && p.tags.length) {
       const tags = el("div", "entry-tags");
       p.tags.forEach((t) => tags.appendChild(el("span", "tag", t)));
       main.appendChild(tags);
     }
+
+    if (abstractPanel) main.appendChild(abstractPanel);
+    if (bibtexPanel) main.appendChild(bibtexPanel);
+
     row.appendChild(main);
     root.appendChild(row);
   });
@@ -61,7 +145,10 @@ function renderCodeProjects() {
   renderCount("code-projects-count", CODE_PROJECTS.length);
   CODE_PROJECTS.forEach((proj) => {
     const row = el("div", `entry${proj.status === "archived" ? " is-archived" : ""}`);
-    row.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
+    const media = el("div", "entry-media");
+    media.appendChild(thumb());
+    media.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
+    row.appendChild(media);
     const main = el("div");
     main.appendChild(el("div", "entry-title", proj.name));
     main.appendChild(el("div", "entry-desc", proj.description));

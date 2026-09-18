@@ -365,8 +365,22 @@ section {
   padding: 18px 0;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 88px 1fr;
+  grid-template-columns: 72px 1fr;
   gap: 18px;
+}
+
+.entry-media {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: var(--paper-alt);
 }
 
 .entry:first-child {
@@ -417,6 +431,62 @@ section {
   font-family: var(--font-mono);
   font-size: 0.78rem;
   margin-right: 14px;
+}
+
+.entry-toggle {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.entry-toggle:hover {
+  color: var(--accent);
+}
+
+.entry-panel {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+}
+
+.entry-panel p {
+  margin: 0;
+  font-size: 0.9rem;
+  max-width: none;
+}
+
+.entry-bibtex {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--ink);
+}
+
+.entry-copy {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.entry-copy:hover {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .entry.is-archived {
