@@ -28,9 +28,9 @@ const SITE = {
 
 // One line each, kept short: what you'd say about yourself in an elevator.
 const ABOUT = [
-  "After obtaining my PhD in 2024 at the University of Bern under the supervision of David Bommes, I stayed for a 15-months-long postdoc in his group.",
-  "Before that, I got a Master's degree from EPFL (2019), which included a 6 months Masters Thesis in Tokyo, under Takeo Igarashi's supervision.",
-  "I also dipped my toes in the industry world over the course of a one year position as Software Engineer at GaitUp/Mindmaze, where I was the sole designer of a cross-platform C++ SDK for body movement analysis.",
+  "After obtaining my PhD in 2024 at the University of Bern's <a href=https://cgg.unibe.ch/>Computer Graphics Group </a> under the supervision of <a href=https://scholar.google.com/citations?user=NwQztEazRfUC&hl=en>David Bommes</a>, I stayed for a 15-months-long postdoc.",
+  "Before that, I got a Master's degree from EPFL (2019), which included a 6 months Masters Thesis in Tokyo, under <a href=https://www-ui.is.s.u-tokyo.ac.jp/~takeo/>Takeo Igarashi</a>'s supervision.",
+  "I also dipped my toes in the industry world over the course of a one year position as Software Engineer at <a href=https://www.gaitup.com/>GaitUp/Mindmaze</a>, where I was the sole designer of a cross-platform C++ SDK for body movement analysis.",
   "My core strengths include geometry processing algorithms,  numerical optimisation, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
   "I'm also a Blender and Unreal Engine enjoyer, always looking for ways to use these tools to enhance scientific visualisation.",
   "While unemployed, I'm focusing on improving my skills in GPU computation/rendering, and looking into AI applications to the geometry processing world.",
@@ -138,9 +138,21 @@ const CODE_PROJECTS = [
     status: "active",
     image: "images/para_helicoidal_ring.png"
   },
+  {
+    name: "Shrink-and-Expand",
+    // Renaming tomorrow? Just change `name` — nothing else references the old one.
+    description:
+      "Reference C++ implementation of the latest Shrink-and-Expand method (cf. paper above).",
+    link: "https://github.com/cgg-bern/cluster-mesh-SAE",
+    tags: ["C++", "tetrahedral mapping"],
+    status: "active",
+    image: "images/papers/cluster-mesh-sae-teaser.png",
+  },
   // Add new code projects here. `status` is "active" or "archived" —
   // used only to fade archived items slightly, not to hide them.
 ];
+
+
 
 const AWARDS = [
   // {

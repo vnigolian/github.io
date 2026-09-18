@@ -80,7 +80,7 @@ function renderPapers() {
     main.appendChild(el("div", "entry-meta", `${p.venue} — ${p.authors}`));
 
     const links = el("div", "entry-links");
-    if (p.link) links.appendChild(externalLink(p.link, "Paper ↗"));
+    if (p.link) links.appendChild(externalLink(p.link, "Project page ↗"));
     if (p.pdf) links.appendChild(externalLink(p.pdf, "PDF ↗"));
 
     let abstractPanel = null;
