@@ -31,9 +31,9 @@ const ABOUT = [
   "After obtaining my PhD in 2024 at the University of Bern's <a href=https://cgg.unibe.ch/>Computer Graphics Group </a> under the supervision of <a href=https://scholar.google.com/citations?user=NwQztEazRfUC&hl=en>David Bommes</a>, I stayed for a 15-months-long postdoc.",
   "Before that, I got a Master's degree from EPFL (2019), which included a 6 months Masters Thesis in Tokyo, under <a href=https://www-ui.is.s.u-tokyo.ac.jp/~takeo/>Takeo Igarashi</a>'s supervision.",
   "I also dipped my toes in the industry world over the course of a one year position as Software Engineer at <a href=https://www.gaitup.com/>GaitUp/Mindmaze</a>, where I was the sole designer of a cross-platform C++ SDK for body movement analysis.",
-  "My core strengths include geometry processing algorithms,  numerical optimisation, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
+  "My core strengths include geometry processing algorithms, numerical optimisation, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
   "I'm also a Blender and Unreal Engine enjoyer, always looking for ways to use these tools to enhance scientific visualisation.",
-  "While unemployed, I'm focusing on improving my skills in GPU computation/rendering, and looking into AI applications to the geometry processing world.",
+  "With some time on my hands, I'm building skills in GPU computation/rendering, and looking into AI applications to the geometry processing world.",
 ];
 
 // Each paper can carry: title, venue, year, authors, link (project/DOI page),
@@ -113,9 +113,6 @@ const PAPERS = [
     authors:
       "Valentin Z. Nigolian, Mehmet Mutlu, Simon Hauser, Alexandre Bernardino, Auke J. Ijspeert",
     link: "https://www.epfl.ch/labs/biorob/students/past/page-128174-en-html/",
-    // No free full text exists for this one — the DOI (paywalled IEEE
-    // Xplore) is the only PDF source, hence the exception here. This stays
-    // an external link rather than a local file for that reason.
     pdf: "papers/roombots-vr.pdf",
     image: "images/papers/roman-teaser.png",
     abstract:
@@ -181,7 +178,7 @@ const EXPERIENCE = [
     start: "2020",
     end: "2024",
     description:
-      "Doctoral research on robust tetrahedral mapping. I graduated Suma Cum Laude, under the supervision of David Bommes. This work included a two months visit in Tokyo.",
+      "Doctoral research on robust tetrahedral mapping. I graduated Summa Cum Laude, under the supervision of David Bommes. This work included a two months visit in Tokyo.",
   },
   {
     role: "Software Engineer",
@@ -189,7 +186,7 @@ const EXPERIENCE = [
     start: "2019",
     end: "2020",
     description:
-      "Sole designer of a C++ cross-platform body movement analysis SDK, deployed on various devices (iOS, android, Linux, Windows, in-house firmware)."
+      "Sole designer of a C++ cross-platform body movement analysis SDK, deployed on various devices (iOS, Android, Linux, Windows, in-house firmware)."
   },
   {
     role: "Master's Student",
@@ -197,7 +194,7 @@ const EXPERIENCE = [
     start: "2016",
     end: "2019",
     description:
-      "Master's thesis work included a six-month research stay at the University of Tokyo, in Takeo Igarashi's User Interface Research Group. ",
+      "Master's thesis work included a six-month research stay at the University of Tokyo, in Takeo Igarashi's User Interface Research Group.",
   },
   // Add more roles here, most recent first.
 ];
