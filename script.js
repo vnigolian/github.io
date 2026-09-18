@@ -27,7 +27,6 @@ function thumb(src) {
   const img = el("img", "entry-thumb");
   img.src = src || "images/black_square.png";
   img.alt = "";
-  img.loading = "lazy";
   return img;
 }
 
@@ -74,12 +73,9 @@ function renderPapers() {
   renderCount("papers-count", PAPERS.length);
   PAPERS.forEach((p) => {
     const row = el("div", "entry");
-    const media = el("div", "entry-media");
-    media.appendChild(thumb(p.image));
-    media.appendChild(el("div", "entry-year mono", p.year));
-    row.appendChild(media);
 
-    const main = el("div");
+    const main = el("div", "entry-main");
+    main.appendChild(el("div", "entry-year mono", p.year));
     main.appendChild(el("div", "entry-title", p.title));
     main.appendChild(el("div", "entry-meta", `${p.venue} — ${p.authors}`));
 
@@ -131,44 +127,9 @@ function renderPapers() {
     if (abstractPanel) main.appendChild(abstractPanel);
     if (bibtexPanel) main.appendChild(bibtexPanel);
 
+    if (p.image) row.appendChild(thumb(p.image));
     row.appendChild(main);
     root.appendChild(row);
-  });
-
-  sizeThumbColumn(root);
-}
-
-/* Sizes a list's thumbnail column to fit its widest actual image, once
-   loaded, instead of forcing every thumbnail into the same fixed square.
-   Sets a --thumb-col custom property on the list container; .entry reads
-   it (falling back to 72px for lists — Code Projects, Awards — that never
-   call this). */
-function sizeThumbColumn(container) {
-  if (!container) return;
-  const imgs = Array.from(container.querySelectorAll(".entry-thumb"));
-  if (!imgs.length) return;
-
-  const apply = () => {
-    const widths = imgs
-      .map((img) => img.getBoundingClientRect().width)
-      .filter((w) => w > 0);
-    if (!widths.length) return;
-    container.style.setProperty("--thumb-col", `${Math.ceil(Math.max(...widths))}px`);
-  };
-
-  const pending = imgs.filter((img) => !img.complete);
-  if (!pending.length) {
-    apply();
-    return;
-  }
-  let remaining = pending.length;
-  const done = () => {
-    remaining -= 1;
-    if (remaining <= 0) apply();
-  };
-  pending.forEach((img) => {
-    img.addEventListener("load", done);
-    img.addEventListener("error", done);
   });
 }
 
@@ -181,11 +142,8 @@ function renderCodeProjects() {
   renderCount("code-projects-count", CODE_PROJECTS.length);
   CODE_PROJECTS.forEach((proj) => {
     const row = el("div", `entry${proj.status === "archived" ? " is-archived" : ""}`);
-    const media = el("div", "entry-media");
-    media.appendChild(thumb());
-    media.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
-    row.appendChild(media);
-    const main = el("div");
+    const main = el("div", "entry-main");
+    main.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
     main.appendChild(el("div", "entry-title", proj.name));
     main.appendChild(el("div", "entry-desc", proj.description));
     if (proj.link) {
@@ -198,6 +156,7 @@ function renderCodeProjects() {
       proj.tags.forEach((t) => tags.appendChild(el("span", "tag", t)));
       main.appendChild(tags);
     }
+    if (proj.image) row.appendChild(thumb(proj.image));
     row.appendChild(main);
     root.appendChild(row);
   });
@@ -209,8 +168,8 @@ function renderAwards() {
   renderCount("awards-count", AWARDS.length);
   AWARDS.forEach((a) => {
     const row = el("div", "entry");
-    row.appendChild(el("div", "entry-year mono", a.year));
-    const main = el("div");
+    const main = el("div", "entry-main");
+    main.appendChild(el("div", "entry-year mono", a.year));
     main.appendChild(el("div", "entry-title", a.title));
     main.appendChild(el("div", "entry-meta", a.org));
     if (a.description) main.appendChild(el("div", "entry-desc", a.description));
@@ -220,15 +179,13 @@ function renderAwards() {
   hideSectionIfEmpty("awards", AWARDS.length === 0);
 }
 
-/* Hides a section (and its sidebar link) entirely when its data array is
-   empty, e.g. AWARDS = [] before you have any to list. Comes back on its
-   own the moment you add an entry — nothing else to toggle by hand. */
+/* Hides a section entirely when its data array is empty, e.g. AWARDS = []
+   before you have any to list. Comes back on its own the moment you add
+   an entry — nothing else to toggle by hand. */
 function hideSectionIfEmpty(sectionId, isEmpty) {
   if (!isEmpty) return;
   const section = document.getElementById(sectionId);
   if (section) section.style.display = "none";
-  const navLink = document.querySelector(`.nav-list a[href="#${sectionId}"]`);
-  if (navLink && navLink.parentElement) navLink.parentElement.style.display = "none";
 }
 
 function renderAbout() {
@@ -276,38 +233,6 @@ function renderChrome() {
   }
 }
 
-/* Highlights the sidebar nav item matching whichever section is in view. */
-function initScrollSpy() {
-  const links = Array.from(document.querySelectorAll(".nav-list a")).filter(
-    (a) => a.parentElement && a.parentElement.style.display !== "none"
-  );
-  const sections = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
-
-  if (!sections.length || !("IntersectionObserver" in window)) return;
-
-  const setActive = (id) => {
-    links.forEach((a) => {
-      if (a.getAttribute("href") === `#${id}`) {
-        a.setAttribute("aria-current", "page");
-      } else {
-        a.removeAttribute("aria-current");
-      }
-    });
-  };
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) setActive(entry.target.id);
-      });
-    },
-    { rootMargin: "-20% 0px -70% 0px" }
-  );
-
-  sections.forEach((s) => observer.observe(s));
-  setActive(sections[0].id); // default to first section on load
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   renderChrome();
   renderAbout();
@@ -315,5 +240,4 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCodeProjects();
   renderAwards();
   renderExperience();
-  initScrollSpy();
 });

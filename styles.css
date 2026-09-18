@@ -13,8 +13,11 @@
   --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --sidebar-w: 248px;
-  --content-w: 680px;
+  /* Ideal max width of the whole centered column on a wide screen — nav,
+     hero, about, and every entry row (image + text) all size off this one
+     value. Tweak this single number to make the page narrower or wider;
+     the entry thumbnail stays exactly 1/3 of it automatically. */
+  --content-w: 900px;
   --gutter: clamp(24px, 5vw, 64px);
 }
 
@@ -79,132 +82,20 @@ p {
 }
 
 /* ---------------------------------------------------------------------
-   Layout shell: fixed sidebar + single content column
+   Layout shell: centered single content column
 --------------------------------------------------------------------- */
-.shell {
-  display: flex;
-  min-height: 100vh;
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: var(--sidebar-w);
-  height: 100vh;
-  padding: 40px 28px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid var(--line);
-}
-
-.sidebar-top .site-name {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.sidebar-top .site-role {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-bottom: 32px;
-  line-height: 1.4;
-}
-
-.nav-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.nav-list a {
-  display: block;
-  padding: 6px 0;
-  color: var(--ink);
-  text-decoration: none;
-  font-size: 0.95rem;
-  border-left: 2px solid transparent;
-  padding-left: 10px;
-  margin-left: -12px;
-}
-
-.nav-list a:hover {
-  color: var(--accent);
-}
-
-.nav-list a[aria-current="page"] {
-  border-left-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
-}
-
 main {
-  margin-left: var(--sidebar-w);
   width: 100%;
   padding: 0 var(--gutter) 120px;
 }
 
 .content {
   max-width: var(--content-w);
+  margin: 0 auto;
   padding-top: 56px;
 }
 
-/* mobile: sidebar becomes a top bar */
-.menu-toggle {
-  display: none;
-}
-
 @media (max-width: 860px) {
-  .sidebar {
-    position: sticky;
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px var(--gutter);
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-    z-index: 10;
-    background: var(--paper);
-  }
-
-  .sidebar-top {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-  }
-
-  .sidebar-top .site-role {
-    display: none;
-  }
-
-  .nav-list {
-    flex-direction: row;
-    gap: 18px;
-  }
-
-  .nav-list a {
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
-    border-bottom: 2px solid transparent;
-  }
-
-  .nav-list a[aria-current="page"] {
-    border-left-color: transparent;
-    border-bottom-color: var(--accent);
-  }
-
-  main {
-    margin-left: 0;
-  }
-
   .content {
     padding-top: 32px;
   }
@@ -257,22 +148,23 @@ main {
    Hero
 --------------------------------------------------------------------- */
 .hero {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   gap: 32px;
   align-items: start;
-  margin-bottom: 72px;
+  margin-bottom: 40px;
 }
 
 .hero-visuals {
   display: flex;
+  flex: 0 0 33%; /* profile picture column = 1/3 of the content width */
+  min-width: 0; /* same fix as .entry-thumb: don't let a real photo's
+    intrinsic size override the 33% flex-basis */
   gap: 16px;
-  flex-shrink: 0;
 }
 
 .profile-pic-wrap {
-  width: 140px;
-  height: 140px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border: 1px solid var(--line);
   overflow: hidden;
   flex-shrink: 0;
@@ -286,7 +178,13 @@ main {
 
 .hero h1 {
   font-size: clamp(1.8rem, 3vw, 2.4rem);
-  margin-bottom: 14px;
+  margin-bottom: 6px;
+}
+
+.hero-role {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
 }
 
 .hero .tagline {
@@ -297,14 +195,12 @@ main {
 
 @media (max-width: 640px) {
   .hero {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
   .hero-visuals {
     order: -1;
-  }
-  .profile-pic-wrap {
-    width: 100px;
-    height: 100px;
+    flex-basis: auto;
+    width: 33%;
   }
 }
 
@@ -362,29 +258,45 @@ section {
 }
 
 .entry {
-  padding: 18px 0;
+  padding: 24px 0;
   border-bottom: 1px solid var(--line);
-  display: grid;
-  /* --thumb-col is set per-list by script.js, sized to the widest actual
-     thumbnail once its images have loaded; 72px is the fallback for lists
-     that never set it (Code Projects, Awards). */
-  grid-template-columns: var(--thumb-col, 72px) 1fr;
-  gap: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
 }
 
-.entry-media {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.entry-main {
+  flex: 1;
+  min-width: 0; /* let text wrap/shrink instead of overflowing the row */
 }
 
 .entry-thumb {
-  height: 72px;
-  width: auto;
-  max-width: 200px;
-  object-fit: cover;
+  flex: 0 0 33%; /* fixed one-third of the row width, always — a wide
+    image no longer pushes the text below it, since the two sit in
+    separate flex columns rather than the text flowing/wrapping around
+    a float. */
+  /* Flex items default to min-width:auto, which for a replaced element
+     like <img> resolves to its own intrinsic (natural pixel) size — that
+     silently overrides flex-basis as a floor, so a large real photo would
+     balloon past 33% and squeeze the text to nothing. min-width:0 removes
+     that floor so flex-basis:33% is actually what wins. */
+  min-width: 0;
+  /* height is intentionally NOT set: with only width fixed, the browser
+     computes height purely from the image's own intrinsic aspect ratio,
+     so nothing is ever cropped or stretched — a wide image just ends up
+     shorter, a tall one ends up taller, exactly as it should. */
   border: 1px solid var(--line);
   background: var(--paper-alt);
+}
+
+@media (max-width: 560px) {
+  .entry {
+    flex-direction: column;
+  }
+  .entry-thumb {
+    flex-basis: auto;
+    width: 100%;
+  }
 }
 
 .entry:first-child {
@@ -495,13 +407,6 @@ section {
 
 .entry.is-archived {
   opacity: 0.55;
-}
-
-@media (max-width: 560px) {
-  .entry {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
 }
 
 /* Timeline (Experience — genuinely sequential) */

@@ -17,7 +17,7 @@ const SITE = {
     "Although my main focus is on volumetric mapping for tetrahedral meshes, I'm looking for opportunities to bring my geometry processing and C++ expertise to the world! If you've got a related job, or if you want to collaborate on whatever, drop me a line!",
   location: "Biel/Bienne, Switzerland",
   photo: "images/val.jpg", // swap for a real photo whenever you have one
-  cv: "cv.pdf",
+  cv: "Valentin-Nigolian-CV-2026.pdf",
   links: [
     { label: "Email", url: "mailto:valentin.nigolian@gmail.com" },
     { label: "GitHub", url: "https://github.com/vnigolian" },
@@ -58,7 +58,7 @@ const PAPERS = [
       "We introduce a novel framework to generate piecewise linear tetrahedral maps, by expressing the map-finding problem as a constrained mesh deformation problem, where constraints satisfaction implies both injectivity and target shape conformity. Deformation is supported by the two core components of our approach: First, an augmentation of the mesh by boundary-incident virtual elements, encoding the target shape in a differential manner via its first and second fundamental form; in contrast to position-driven approaches this prevents optimisation failure due to improper winding. Second, a remeshing scheme maintaining mesh element quality and preventing blocking configurations. A first implementation is empirically shown to have higher robustness and/or higher efficiency than state-of-the-art methods on challenging, yet practically relevant inputs. We illustrate our method's versatility in a range of applications, demonstrating its value as a new item in the algorithmic toolbox for volumetric mapping.",
     bibtex:
       "@article{Nigolian:2026:boundary_deformation_maps,\n  author = {Nigolian, Valentin Z. and Campen, Marcel and Bommes, David},\n  title = {Robust Deformation-based 3D Bijective Mapping through Differential Boundary Shape Matching},\n  journal = {ACM Transactions on Graphics},\n  volume = {45},\n  number = {6},\n  year = {2026},\n  publisher = {ACM},\n  address = {New York, NY, USA},\n  doi = {10.1145/3842573}\n}",
-    tags: ["volumetric mapping", "tetrahedral meshing"],
+    tags: ["tetrahedral mapping", "mesh morphing"],
   },
   {
     title:
@@ -73,7 +73,7 @@ const PAPERS = [
       "We present a novel algorithm to map ball-topology tetrahedral meshes onto star-shaped domains with guarantees regarding bijectivity. Our algorithm is based on the recently introduced idea of Shrink-and-Expand, where images of interior vertices are initially clustered at one point (Shrink-), before being sequentially moved to non-degenerate positions yielding a bijective map (-and-Expand). In this context, we introduce the concept of the cluster mesh, i.e. the unexpanded interior mesh consisting of geometrically degenerate simplices. Using local, per-vertex connectivity information solely from the cluster mesh, we show that a viable expansion sequence guaranteed to produce a bijective map can always be found as long as the mesh is shellable. In addition to robustness guarantees for this ubiquitous class of inputs, other practically relevant benefits include improved parsimony and reduced algorithmic complexity. While inheriting some of the worst-case high run time requirements of the state of the art, significant acceleration for the average case is experimentally demonstrated.",
     bibtex:
       "@article{Nigolian:2024:cluster_mesh_SAE,\n  author = {Nigolian, Valentin Z. and Campen, Marcel and Bommes, David},\n  title = {A Progressive Embedding Approach to Bijective Tetrahedral Maps driven by Cluster Mesh Topology},\n  journal = {ACM Transactions on Graphics},\n  volume = {43},\n  number = {6},\n  year = {2024},\n  publisher = {ACM},\n  address = {New York, NY, USA},\n  doi = {10.1145/3687992}\n}",
-    tags: ["volumetric mapping", "tetrahedral meshing"],
+    tags: ["tetrahedral mapping", "robust methods"],
   },
   {
     title: "Expansion Cones: A Progressive Volumetric Mapping Framework",
@@ -89,7 +89,7 @@ const PAPERS = [
       "Volumetric mapping is a ubiquitous and difficult problem in Geometry Processing and has been the subject of research in numerous and various directions. While several methods show encouraging results, the field still lacks a general approach with guarantees regarding map bijectivity. Through this work, we aim at opening the door to a new family of methods by providing a novel framework based on the concept of progressive expansion. Starting from an initial map of a tetrahedral mesh whose image may contain degeneracies but no inversions, we incrementally adjust vertex images to expand degenerate elements. By restricting movement to so-called expansion cones, it is done in such a way that the number of degenerate elements decreases in a strictly monotonic manner, without ever introducing any inversion. Adaptive local refinement of the mesh is performed to facilitate this process. We describe a prototype algorithm in the realm of this framework for the computation of maps from ball-topology tetrahedral meshes to convex or star-shaped domains. This algorithm is evaluated and compared to state-of-the-art methods, demonstrating its benefits in terms of bijectivity. We also discuss the associated cost in terms of sometimes significant mesh refinement to obtain the necessary degrees of freedom required for establishing a valid mapping. Our conclusions include that while this algorithm is only of limited immediate practical utility due to efficiency concerns, the general framework has the potential to inspire a range of novel methods improving on the efficiency aspect.",
     bibtex:
       "@article{Nigolian:2023:SchrEx,\n  author = {Nigolian, Valentin Z. and Campen, Marcel and Bommes, David},\n  title = {Expansion Cones: A Progressive Volumetric Mapping Framework},\n  journal = {ACM Transactions on Graphics},\n  volume = {42},\n  number = {4},\n  year = {2023},\n  publisher = {ACM},\n  address = {New York, NY, USA},\n  doi = {10.1145/3592421}\n}",
-    tags: ["volumetric mapping", "tetrahedral meshing"],
+    tags: ["tetrahedral mapping", "robust methods"],
   },
   {
     title: "INVANER: INteractive VAscular Network Editing & Repair",
@@ -116,7 +116,7 @@ const PAPERS = [
     // No free full text exists for this one — the DOI (paywalled IEEE
     // Xplore) is the only PDF source, hence the exception here. This stays
     // an external link rather than a local file for that reason.
-    pdf: "papers/nigolian-romain2017.pdf",
+    pdf: "papers/roombots-vr.pdf",
     image: "images/papers/roman-teaser.png",
     abstract:
       "Roombots are self-reconfigurable modular robots. They are one of the current projects of BioRob, the Biorobotics Laboratory at EPFL. Its main purpose is to create self-reconfigurable adaptive furniture and has many applications. One of them is to make disabled people more independent by providing a smart interface adapted to their daily physical challenges, allowing them to move their furniture by themselves through the use of Roombots. This project explores new ways to interact with modular robots by using a gesture-based interface with a Virtual Reality (VR) visual feed-back, for a more immersive apprehension of the virtual world. The goal is to enable the user to quickly set up a room using furniture made out of Roombots modules and then finally visualize the Roombots building the desired furnitures.",
