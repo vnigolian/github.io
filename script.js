@@ -134,6 +134,42 @@ function renderPapers() {
     row.appendChild(main);
     root.appendChild(row);
   });
+
+  sizeThumbColumn(root);
+}
+
+/* Sizes a list's thumbnail column to fit its widest actual image, once
+   loaded, instead of forcing every thumbnail into the same fixed square.
+   Sets a --thumb-col custom property on the list container; .entry reads
+   it (falling back to 72px for lists — Code Projects, Awards — that never
+   call this). */
+function sizeThumbColumn(container) {
+  if (!container) return;
+  const imgs = Array.from(container.querySelectorAll(".entry-thumb"));
+  if (!imgs.length) return;
+
+  const apply = () => {
+    const widths = imgs
+      .map((img) => img.getBoundingClientRect().width)
+      .filter((w) => w > 0);
+    if (!widths.length) return;
+    container.style.setProperty("--thumb-col", `${Math.ceil(Math.max(...widths))}px`);
+  };
+
+  const pending = imgs.filter((img) => !img.complete);
+  if (!pending.length) {
+    apply();
+    return;
+  }
+  let remaining = pending.length;
+  const done = () => {
+    remaining -= 1;
+    if (remaining <= 0) apply();
+  };
+  pending.forEach((img) => {
+    img.addEventListener("load", done);
+    img.addEventListener("error", done);
+  });
 }
 
 /* ---------------------------------------------------------------------

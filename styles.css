@@ -365,7 +365,10 @@ section {
   padding: 18px 0;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 72px 1fr;
+  /* --thumb-col is set per-list by script.js, sized to the widest actual
+     thumbnail once its images have loaded; 72px is the fallback for lists
+     that never set it (Code Projects, Awards). */
+  grid-template-columns: var(--thumb-col, 72px) 1fr;
   gap: 18px;
 }
 
@@ -376,8 +379,9 @@ section {
 }
 
 .entry-thumb {
-  width: 72px;
   height: 72px;
+  width: auto;
+  max-width: 200px;
   object-fit: cover;
   border: 1px solid var(--line);
   background: var(--paper-alt);

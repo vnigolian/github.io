@@ -16,13 +16,13 @@ const SITE = {
   tagline:
     "Although my main focus is on volumetric mapping for tetrahedral meshes, I'm looking for opportunities to bring my geometry processing and C++ expertise to the world! If you've got a related job, or if you want to collaborate on whatever, drop me a line!",
   location: "Biel/Bienne, Switzerland",
-  photo: "images/black_square.png", // swap for a real photo whenever you have one
+  photo: "images/val.jpg", // swap for a real photo whenever you have one
   cv: "cv.pdf",
   links: [
     { label: "Email", url: "mailto:valentin.nigolian@gmail.com" },
     { label: "GitHub", url: "https://github.com/vnigolian" },
-    { label: "Google Scholar", url: "[ADD: scholar.google.com profile link]" },
-    { label: "LinkedIn", url: "[ADD: linkedin.com/in/... ]" },
+    { label: "Google Scholar", url: "https://scholar.google.com/citations?hl=en&user=JMrC0IUAAAAJ" },
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/valentin-nigolian-a8b473145/" },
   ],
 };
 
@@ -31,7 +31,7 @@ const ABOUT = [
   "After obtaining my PhD in 2024 at the University of Bern under the supervision of David Bommes, I stayed for a 15-months-long postdoc in his group.",
   "Before that, I got a Master's degree from EPFL (2019), which included a 6 months Masters Thesis in Tokyo, under Takeo Igarashi's supervision.",
   "I also dipped my toes in the industry world over the course of a one year position as Software Engineer at GaitUp/Mindmaze, where I was the sole designer of a cross-platform C++ SDK for body movement analysis.",
-  "My core strengths include geometry processing algorithms,  numerical optimization, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
+  "My core strengths include geometry processing algorithms,  numerical optimisation, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
   "I'm also a Blender and Unreal Engine enjoyer, always looking for ways to use these tools to enhance scientific visualisation.",
   "While unemployed, I'm focusing on improving my skills in GPU computation/rendering, and looking into AI applications to the geometry processing world.",
 ];
@@ -103,7 +103,7 @@ const PAPERS = [
       "Vascular network reconstruction is an essential aspect of the daily practice of medical doctors working with vascular systems. Accurately representing vascular networks, not only graphically but also in a way that encompasses their structure, can be used to run simulations, plan medical procedures or identify real-life diseases, for example. A vascular network is thus reconstructed from a 3D medical image sequence via segmentation and skeletonization. Many automatic algorithms exist to do so but tend to fail for specific corner cases. On the other hand, manual methods exist as well but are tedious to use and require a lot of time. In this paper, we introduce an interactive vascular network reconstruction system called INVANER that relies on a graph-like representation of the network's structure. A general skeleton is obtained with an automatic method and medical practitioners are allowed to manually repair the local defects where this method fails. Our system uses graph-related tools with local effects and introduces two novel tools, dedicated to solving two common problems arising when automatically extracting the centerlines of vascular structures: so-called \"Kissing Vessels\" and a type of phenomenon we call \"Dotted Vessels.\"",
     bibtex:
       "@inproceedings{Nigolian:2019:INVANER,\n  author = {Nigolian, Valentin Z. and Igarashi, Takeo and Seo, Hirofumi},\n  title = {INVANER: INteractive VAscular Network Editing \\& Repair},\n  booktitle = {Proceedings of the 32nd Annual ACM Symposium on User Interface Software and Technology},\n  series = {UIST '19},\n  year = {2019},\n  pages = {1197--1209},\n  publisher = {ACM},\n  address = {New York, NY, USA},\n  doi = {10.1145/3332165.3347900}\n}",
-    tags: ["medical visualization", "interactive systems"],
+    tags: ["medical visualisation", "interactive systems"],
   },
   {
     title:
@@ -136,20 +136,7 @@ const CODE_PROJECTS = [
     link: "[ADD: repo URL]",
     tags: ["C++", "tetrahedral meshing"],
     status: "active",
-  },
-  {
-    name: "[ADD: project name]",
-    description: "[ADD: one or two sentences on what it does]",
-    link: "[ADD: repo URL]",
-    tags: ["[ADD: tag]"],
-    status: "active",
-  },
-  {
-    name: "[ADD: project name]",
-    description: "[ADD: one or two sentences on what it does]",
-    link: "[ADD: repo URL]",
-    tags: ["[ADD: tag]"],
-    status: "active",
+    image: "images/para_helicoidal_ring.png"
   },
   // Add new code projects here. `status` is "active" or "archived" —
   // used only to fade archived items slightly, not to hide them.
@@ -167,44 +154,38 @@ const AWARDS = [
 
 // Sequential — rendered as a timeline. Most recent first.
 const EXPERIENCE = [
-  {
-    role: "[ADD: current role/title, if any]",
-    org: "[ADD: organization]",
-    start: "[ADD: start year]",
-    end: "present",
-    description: "[ADD: one or two lines]",
-  },
+
   {
     role: "Postdoctoral Researcher",
     org: "University of Bern",
     start: "2024",
-    end: "[ADD: end year, or 'present']",
+    end: "2026",
     description:
-      "Continued research on volumetric mapping for tetrahedral meshes, extending the shrink-and-expand framework toward isogeometric analysis and medical simulation applications.",
+      "Focused on boundary-deformation-driven tetrahedral mapping, resulting in a SIGGRAPH Asia publication (see above).",
   },
   {
-    role: "PhD Candidate, Digital Geometry",
+    role: "PhD Student, Geometry Processing",
     org: "University of Bern",
-    start: "[ADD: start year]",
+    start: "2020",
     end: "2024",
     description:
-      "Doctoral research on digital geometry and geometry processing, including two months at a partner lab in Tokyo.",
+      "Doctoral research on robust tetrahedral mapping. I graduated Suma Cum Laude, under the supervision of David Bommes. This work included a two months visit in Tokyo.",
   },
   {
-    role: "SDK Engineer",
+    role: "Software Engineer",
     org: "GaitUp / Mindmaze",
-    start: "[ADD: start year]",
-    end: "[ADD: end year]",
+    start: "2019",
+    end: "2020",
     description:
-      "Sole designer and engineer of a cross-platform body movement analysis SDK in C++.",
+      "Sole designer of a C++ cross-platform body movement analysis SDK, deployed on various devices (iOS, android, Linux, Windows, in-house firmware)."
   },
   {
     role: "Master's Student",
     org: "EPFL",
-    start: "[ADD: start year]",
+    start: "2016",
     end: "2019",
     description:
-      "Master's thesis work included a six-month research stay in Tokyo.",
+      "Master's thesis work included a six-month research stay at the University of Tokyo, in Takeo Igarashi's User Interface Research Group. ",
   },
   // Add more roles here, most recent first.
 ];
