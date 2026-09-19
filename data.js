@@ -34,6 +34,7 @@ const ABOUT = [
   "My core strengths include geometry processing algorithms, numerical optimisation, modern C++ (14–23), Linear algebra (Eigen), and some Python and shell-scripting.",
   "I'm also a Blender and Unreal Engine enjoyer, always looking for ways to use these tools to enhance scientific visualisation.",
   "With some time on my hands, I'm building skills in GPU computation/rendering, and looking into AI applications to the geometry processing world.",
+  "Aside from research, my hobbies include video games, cooking (for my amazing partner or bigger groups), organising parties, and high-grade rum."
 ];
 
 // Each paper can carry: title, venue, year, authors, link (project/DOI page),

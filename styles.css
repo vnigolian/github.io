@@ -69,7 +69,7 @@ body {
      behind the (opaque) center column and adapts with the theme. */
   background-color: var(--paper);
   background-image: linear-gradient(var(--backdrop-tint), var(--backdrop-tint)),
-    url("images/bg-placeholder.jpg");
+    url("images/bg.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
