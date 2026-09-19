@@ -233,6 +233,28 @@ function renderChrome() {
   }
 }
 
+/* ---------------------------------------------------------------------
+   Theme toggle — dark by default (see the inline script in <head> that
+   applies the saved/default theme before first paint, to avoid a flash).
+--------------------------------------------------------------------- */
+function initThemeToggle() {
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+
+  const setIcon = (theme) => {
+    // Icon shows what you'd switch TO, matching common conventions.
+    btn.textContent = theme === "light" ? "🌙" : "☀️";
+  };
+  setIcon(document.documentElement.dataset.theme);
+
+  btn.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+    setIcon(next);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderChrome();
   renderAbout();
@@ -240,4 +262,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCodeProjects();
   renderAwards();
   renderExperience();
+  initThemeToggle();
 });
