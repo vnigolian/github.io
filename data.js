@@ -11,7 +11,7 @@
  */
 
 const SITE = {
-  name: "Valentin Nigolian",
+  name: "Valentin Z. Nigolian",
   role: "Geometry Processing Research Scientist",
   tagline:
     "Although my main focus is on volumetric mapping for tetrahedral meshes, I'm looking for opportunities to bring my geometry processing and C++ expertise to the world! If you've got a related job, or if you want to collaborate on whatever, drop me a line!",
