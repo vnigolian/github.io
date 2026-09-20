@@ -3,15 +3,9 @@
 ## TODOS
 * add a "cool stuff" section, with e.g. the NOBUENOSS
 
-## Site content
+## Caveat
+This website was pretty much entirely vibe coded. Let's hope for the best.
 
-`data.js` is the only file you should need to edit to change page content —
-see the comment at its top. It now includes an `OTHER_PROJECTS` array
-(same shape as `CODE_PROJECTS`: `name`, `description`, `link`, `tags`,
-`status`, `image`), rendered into its own "Other Projects" section in
-`index.html`, for things that aren't primarily a codebase. It's empty by
-default and the section hides itself automatically until you add an entry
-(same pattern as `AWARDS`).
 
 ## Interactive backdrop
 
