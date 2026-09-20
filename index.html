@@ -3,13 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Valentin Nigolian — Digital Geometry & Geometry Processing</title>
+<title>Valentin Z. Nigolian — Geometry Processing Researcher</title>
 <meta name="description" content="Valentin Nigolian — research on volumetric mapping for tetrahedral meshes, and C++ engineering for geometry processing." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
-<link rel="preload" as="image" href="images/bg.jpg" fetchpriority="high" />
+<!-- Backdrop image: preloaded so the browser starts fetching it right
+     away instead of waiting to parse styles.css first, which is what
+     caused the visible pop-in. This preloads the DARK image since dark
+     is the default theme — someone who has chosen light before will
+     load images/bg-light.jpg a moment later instead (no preload for
+     that one, since we can't know their saved choice this early without
+     giving up the preload's head start). Update this path if you rename
+     images/bg-dark.jpg. -->
+<link rel="preload" as="image" href="images/bg-dark.jpg" fetchpriority="high" />
 <script>
   // Applied before first paint so there's no flash of the wrong theme.
   // Dark is the default whenever the person hasn't chosen one before.

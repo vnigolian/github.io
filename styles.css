@@ -17,6 +17,9 @@
      the center column, regardless of the image's own colors. */
   --backdrop-tint: rgba(10, 10, 12, 0.0);
   --content-shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
+  /* Swap these two filenames for your own dark/light backdrop images —
+     nothing else needs to change, the toggle already switches this. */
+  --bg-image: url("images/bg-dark.jpg");
 
   --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -38,8 +41,9 @@
   --accent: #2648d6;
   --accent-dim: #2648d61a;
 
-  --backdrop-tint: rgba(255, 255, 255, 0);
+  --backdrop-tint: rgba(255, 255, 255, 0.0);
   --content-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+  --bg-image: url("images/bg-light.jpg");
 }
 
 * {
@@ -64,13 +68,21 @@ body {
   font-size: 16px;
   line-height: 1.55;
 
-  /* Placeholder backdrop — swap the url() for your own image whenever
-     you have one; nothing else needs to change. The tint keeps it muted
-     behind the (opaque) center column and adapts with the theme. */
+  /* Placeholder backdrop — one image per theme, via --bg-image (declared
+     per theme up in :root / [data-theme="light"] above). Swap those two
+     url()s for your own images whenever you have them; nothing else
+     needs to change. The tint keeps it muted behind the (opaque) center
+     column and adapts with the theme. */
   background-color: var(--paper);
-  background-image: linear-gradient(var(--backdrop-tint), var(--backdrop-tint)),
-    url("images/bg.jpg");
-  background-size: 100% auto;
+  background-image: linear-gradient(var(--backdrop-tint), var(--backdrop-tint)), var(--bg-image);
+  /* "cover" is the only setting that guarantees the image always fills
+     the full viewport with zero letterbox bands, on any window shape —
+     it scales up whichever dimension is short, then crops the other.
+     Trade-off: which side gets cropped (and how much) shifts with the
+     window's aspect ratio, so a wide window may crop the sides while a
+     narrow one crops top/bottom instead. There's no setting that avoids
+     all cropping AND guarantees full coverage on every window shape. */
+  background-size: cover;
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
