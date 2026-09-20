@@ -29,12 +29,23 @@
 </head>
 <body>
 
-<!-- Interactive backdrop: hidden (display:none) in "image" mode, where the
-     plain CSS background-image above shows through instead. See
-     background-live.js for the Voronoi/Delaunay logic. -->
+<!-- Interactive backdrop: hidden (display:none) in "animation" mode, where
+     the two layer divs below paint instead. See background-live.js for the
+     Voronoi/Delaunay logic. -->
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-<button id="bg-mode-toggle" class="theme-toggle bg-mode-toggle" type="button" aria-label="Switch backdrop mode">🖼️</button>
+<!-- Only used in "animation" mode: two stacked, scroll-scrubbed frame
+     images cross-faded between (layer B on top, its opacity is the
+     fractional part of the current scroll-to-frame position) so scrolling
+     between two adjacent frames dissolves smoothly instead of hard-cutting
+     — see updateAnimationFrame() in background-live.js. Hidden the rest of
+     the time; body's own theme background-image (styles.css) shows through
+     beneath them whenever a frame hasn't loaded yet, so there's a sane
+     fallback instead of a blank flash while frames are still loading. -->
+<div id="bg-anim-layer-a" class="bg-anim-layer" aria-hidden="true"></div>
+<div id="bg-anim-layer-b" class="bg-anim-layer" aria-hidden="true"></div>
+
+<button id="bg-mode-toggle" class="theme-toggle bg-mode-toggle" type="button" aria-label="Switch backdrop mode">🔺</button>
 <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch between light and dark theme">🌙</button>
 
 <!-- Only shown in "voronoi" mode (see applyMode() in background-live.js),

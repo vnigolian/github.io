@@ -317,6 +317,29 @@ main {
   touch-action: none;
 }
 
+/* "animation" mode's two cross-faded frame layers — see the comment on
+   these elements in index.html and updateAnimationFrame() in
+   background-live.js. Same z-index reasoning as #bg-canvas above (0, not
+   negative, so main's padding stays clickable); position: fixed keeps
+   each layer pinned to the viewport as its own element, so — unlike
+   body's background-attachment: fixed — no attachment property is needed
+   to stop it scrolling with the page. Layer B sits on top and fades in
+   over layer A as its own opacity, driven directly by scroll position. */
+.bg-anim-layer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+#bg-anim-layer-b {
+  opacity: 0;
+}
+
 /* ---------------------------------------------------------------------
    Top contact bar — email, links, CV, in a horizontal line above the hero
 --------------------------------------------------------------------- */

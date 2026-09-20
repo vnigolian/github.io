@@ -1,8 +1,8 @@
 /**
  * Interactive backdrop: three modes, cycled by the #bg-mode-toggle button
- * and remembered in localStorage (same pattern as the theme toggle).
+ * and picked at random on every page load (see the `mode` initializer
+ * below) rather than remembered.
  *
- *   "image"    — the plain CSS background-image on <body> (default).
  *   "voronoi"  — a live Voronoi diagram. Click anywhere on the backdrop
  *                to drop a new point, or press and drag to lay down a
  *                trail of points (one every few pixels of movement); the
@@ -22,6 +22,13 @@
  *                gently pushes overlapping clusters apart every frame —
  *                a different kind of smoothing than Voronoi mode's
  *                "smooth": spacing instead of mesh regularity.
+ *   "animation" — a numbered sequence of background images, scrubbed by
+ *                scroll position instead of time (see updateAnimationFrame
+ *                below). While a frame that's needed hasn't finished
+ *                loading (and decoding) yet, this falls back to the same
+ *                plain CSS background-image <body> otherwise uses (see
+ *                styles.css) — so there's always something reasonable to
+ *                show even before/between frames arriving.
  *
  * Uses d3-delaunay (vendor/d3-delaunay.min.js), which must be loaded
  * before this file. Everything here is a single self-contained IIFE so
@@ -55,7 +62,7 @@
     // one point, at pointerdown).
     VORONOI_DRAG_MIN_DISTANCE: 5,
 
-    CIRCLE_COUNT: 10, // number of draggable circles in "circles" mode
+    CIRCLE_COUNT: 20, // number of draggable circles in "circles" mode
     CIRCLE_MIN_RADIUS: 36,
     CIRCLE_RADIUS_RANGE: 70, // circle radius = MIN_RADIUS + random()*RANGE
     CIRCLE_MIN_VERTICES: 8, // random boundary-vertex count, inclusive
@@ -120,6 +127,19 @@
     // stale connectivity across a point-count change would index past the
     // end of the point array.
     CIRCLE_RETRIANGULATE_EVERY_N_FRAMES: 20,
+
+    // "animation" mode: a numbered sequence of background images, scrubbed
+    // by scroll position instead of time — scrolling from the top of the
+    // page to the bottom steps linearly through frame 1 to frame
+    // ANIMATION_FRAME_COUNT. Files are expected at
+    // `${ANIMATION_FRAME_DIR}${frame number, zero-padded to
+    // ANIMATION_FRAME_PAD digits}${ANIMATION_FRAME_EXT}`, e.g.
+    // "images/bg-frames/0001.jpg" through "images/bg-frames/0025.jpg" for
+    // the defaults below.
+    ANIMATION_FRAME_DIR: "images/bg-frames/",
+    ANIMATION_FRAME_COUNT: 50,
+    ANIMATION_FRAME_PAD: 4,
+    ANIMATION_FRAME_EXT: ".jpg",
   };
 
   // Restore a previously-set drag distance, if any (see the "drag" number
@@ -138,19 +158,27 @@
   const dragDistanceInput = document.getElementById("voronoi-drag-distance");
   const circlesControls = document.getElementById("circles-controls");
   const repulseCheckbox = document.getElementById("circle-repulse-checkbox");
+  const layerA = document.getElementById("bg-anim-layer-a");
+  const layerB = document.getElementById("bg-anim-layer-b");
   if (!canvas || typeof d3 === "undefined") return;
   const ctx = canvas.getContext("2d");
 
-  const MODES = ["image", "voronoi", "circles"];
-  const MODE_ICON = { image: "🖼️", voronoi: "🔺", circles: "⚪" };
+  const MODES = ["voronoi", "circles", "animation"];
+  const MODE_ICON = { voronoi: "🔺", circles: "⚪", animation: "🎬" };
   const MODE_LABEL = {
-    image: "Static backdrop image — click to try a live Voronoi diagram",
     voronoi: "Live Voronoi diagram — click or drag on the backdrop to add points",
     circles: "Live Delaunay triangulation — click to add a cluster, drag one to move it",
+    animation: "Scroll-controlled animation — scroll the page to scrub through it",
   };
-  const MODE_CURSOR = { image: "default", voronoi: "crosshair", circles: "grab" };
+  const MODE_CURSOR = { voronoi: "crosshair", circles: "grab", animation: "default" };
 
-  let mode = MODES.includes(localStorage.getItem("bgMode")) ? localStorage.getItem("bgMode") : "image";
+  // Every page load starts from a random one of these modes — no saved
+  // preference is read or written for it, so reloading (or opening in a
+  // new tab) gets a fresh random pick every time, even after toggling to a
+  // particular mode by hand during a previous visit. Toggling during THIS
+  // visit still switches modes normally; it just doesn't carry over to the
+  // next reload.
+  let mode = MODES[Math.floor(Math.random() * MODES.length)];
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -195,6 +223,22 @@
   let cachedCirclePointCount = -1;
   let circleFrameCounter = 0;
 
+  // "animation" mode state:
+  //  - animationImages[i] tracks each frame's own <img> (which starts and
+  //    caches its download the moment preloadAnimationFrames runs) and
+  //    whether that download has actually finished — see
+  //    preloadAnimationFrames/updateAnimationFrame below.
+  //  - animationFramesPreloaded guards against kicking off the preload
+  //    more than once.
+  //  - animationShownBase/animationShownFrac remember what's currently
+  //    actually painted (as opposed to what the scroll position calls
+  //    for), so a still-loading frame simply leaves the last successfully
+  //    shown one in place rather than flashing to something blank.
+  let animationImages = [];
+  let animationFramesPreloaded = false;
+  let animationShownBase = -1;
+  let animationShownFrac = -1;
+
   function currentTheme() {
     return document.documentElement.dataset.theme === "light" ? "light" : "dark";
   }
@@ -218,6 +262,124 @@
   function seedVoronoi() {
     const count = Math.max(20, Math.round((width * height) / CONFIG.VORONOI_SEED_DENSITY));
     voronoiPoints = Array.from({ length: count }, randomPoint);
+  }
+
+  // Path to a given (0-indexed) animation frame's image file.
+  function animationFramePath(index) {
+    const num = String(index + 1).padStart(CONFIG.ANIMATION_FRAME_PAD, "0");
+    return CONFIG.ANIMATION_FRAME_DIR + num + CONFIG.ANIMATION_FRAME_EXT;
+  }
+
+  // Kicks off every frame's download exactly once (an <img> starts
+  // fetching the moment its .src is set, whether or not it's ever
+  // inserted into the page, and the browser caches the result — so a
+  // later CSS background-image referencing the same URL paints instantly
+  // instead of re-fetching). Frames are requested nearest-to-`priorityIndex`
+  // first: with a large frame count, the browser can only fetch so many at
+  // once, so this makes sure whichever frame the page is ACTUALLY showing
+  // right now (or about to, immediately after switching into this mode)
+  // is among the very first to arrive, rather than being queued behind a
+  // hundred others in plain file order.
+  function preloadAnimationFrames(priorityIndex) {
+    if (animationFramesPreloaded) return;
+    animationFramesPreloaded = true;
+    const order = [];
+    for (let i = 0; i < CONFIG.ANIMATION_FRAME_COUNT; i++) order.push(i);
+    order.sort((a, b) => Math.abs(a - priorityIndex) - Math.abs(b - priorityIndex));
+    animationImages = new Array(CONFIG.ANIMATION_FRAME_COUNT);
+    order.forEach((i) => {
+      const entry = { img: new Image(), loaded: false };
+      entry.img.onload = () => {
+        // decode() finishes the actual pixel-decoding work before its
+        // promise resolves, so painting the image right afterwards is
+        // instant. Without this, marking a frame "loaded" straight off
+        // `onload` (which only means the bytes finished downloading) could
+        // still leave a still-undecoded image assigned as a CSS
+        // background-image — and while it decodes, some browsers paint
+        // that spot as if there were no background-image at all, letting
+        // body's own static backdrop flash through for a frame. That's
+        // what caused the random single-frame flickers to the static
+        // image while scrolling through freshly-arriving frames.
+        entry.img
+          .decode()
+          .catch(() => {}) // still show it even if decode() itself errors
+          .then(() => {
+            entry.loaded = true;
+            updateAnimationFrame(); // in case frame i is exactly what's now needed
+          });
+      };
+      entry.img.src = animationFramePath(i);
+      animationImages[i] = entry;
+    });
+  }
+
+  function isAnimationFrameLoaded(index) {
+    const entry = animationImages[index];
+    return !!entry && entry.loaded;
+  }
+
+  // Bumps a not-yet-loaded frame's fetch priority (supported in
+  // Chromium/Edge; a no-op property set elsewhere) so that whichever frame
+  // the user has actually scrolled to jumps ahead of the hundred others
+  // still queued from the initial nearest-to-start preload order. Without
+  // this, scrolling fast to a far-off frame before the initial preload
+  // queue reaches it left that frame stuck behind everything else.
+  function bumpFramePriority(index) {
+    const entry = animationImages[index];
+    if (entry && !entry.loaded) entry.img.fetchPriority = "high";
+  }
+
+  // Picks the frame(s) for the current scroll position — index 0 at the
+  // very top of the page, CONFIG.ANIMATION_FRAME_COUNT - 1 at the very
+  // bottom, linearly in between, at whatever FRACTIONAL position that
+  // works out to (not rounded to the nearest whole frame) — and
+  // cross-fades between the two frames straddling it: layer A always
+  // shows the lower ("base") frame at full opacity, layer B shows the
+  // next one up, faded in by exactly the fractional part. Scrolling from
+  // frame 3 to frame 4 this way dissolves smoothly through every point in
+  // between rather than jump-cutting, so fewer source frames are needed
+  // for the same perceived smoothness.
+  //
+  // Neither layer is ever pointed at a frame that hasn't finished loading
+  // yet — see isAnimationFrameLoaded — so scrolling ahead of the preload
+  // simply holds the last fully-loaded combination in place instead of
+  // flashing to a blank layer; the moment the needed frame's download
+  // completes, its own onload (above) re-calls this and catches up.
+  function updateAnimationFrame() {
+    if (mode !== "animation") return;
+    const doc = document.documentElement;
+    const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const fraction = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    const floatIndex = fraction * (CONFIG.ANIMATION_FRAME_COUNT - 1);
+    const base = Math.floor(floatIndex);
+    const frac = floatIndex - base;
+    const next = Math.min(base + 1, CONFIG.ANIMATION_FRAME_COUNT - 1);
+
+    // Make sure the frames actually needed right now (rather than
+    // whichever ones happened to be queued first) get bumped to the front
+    // of the browser's own fetch queue.
+    bumpFramePriority(base);
+    bumpFramePriority(next);
+
+    // If the exact frame for this scroll position hasn't loaded yet, just
+    // keep showing whatever's already on screen (do nothing) until it, or
+    // a later frame the scrolling has since moved on to, finishes loading
+    // — rather than jumping to some other, possibly far-off frame that
+    // happens to be loaded already.
+    if (base !== animationShownBase && isAnimationFrameLoaded(base)) {
+      animationShownBase = base;
+      layerA.style.backgroundImage =
+        "linear-gradient(var(--backdrop-tint), var(--backdrop-tint)), url(\"" + animationFramePath(base) + "\")";
+    }
+    const targetFrac = isAnimationFrameLoaded(next) ? frac : 0;
+    if (targetFrac !== animationShownFrac) {
+      animationShownFrac = targetFrac;
+      if (targetFrac > 0) {
+        layerB.style.backgroundImage =
+          "linear-gradient(var(--backdrop-tint), var(--backdrop-tint)), url(\"" + animationFramePath(next) + "\")";
+      }
+      layerB.style.opacity = targetFrac;
+    }
   }
 
   // A single random cluster (random radius and boundary-vertex count,
@@ -572,7 +734,7 @@
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (mode !== "image") draw();
+    if (mode !== "animation") draw();
   }
 
   // Bumped from "bgHintDismissed" when the hint's design changed (closer
@@ -589,12 +751,13 @@
   }
 
   function applyMode(next, opts) {
-    const persist = !opts || opts.persist !== false;
-    mode = MODES.includes(next) ? next : "image";
-    if (persist) {
-      localStorage.setItem("bgMode", mode);
-      dismissHint();
-    }
+    // Not persisted to localStorage anymore (see the `mode` initializer
+    // above) — `userInitiated` just controls whether this counts as the
+    // person actually interacting with the toggle, for dismissing the
+    // "try these out" hint.
+    const userInitiated = !opts || opts.userInitiated !== false;
+    mode = MODES.includes(next) ? next : MODES[0];
+    if (userInitiated) dismissHint();
 
     if (modeBtn) {
       modeBtn.textContent = MODE_ICON[mode];
@@ -606,8 +769,35 @@
     if (voronoiControls) voronoiControls.hidden = mode !== "voronoi";
     if (circlesControls) circlesControls.hidden = mode !== "circles";
 
-    if (mode === "image") {
+    // "animation" paints through its own two layer elements instead of
+    // the canvas or body's CSS background (see updateAnimationFrame) —
+    // leaving it hides them again so body's own theme background-image
+    // shows through as it normally would, and entering it warms the frame
+    // cache (prioritized around wherever the page already happens to be
+    // scrolled to) and immediately shows the matching frame(s).
+    if (mode !== "animation") {
+      layerA.style.display = "none";
+      layerB.style.display = "none";
+      layerA.style.backgroundImage = "";
+      layerB.style.backgroundImage = "";
+      layerB.style.opacity = 0;
+      animationShownBase = -1;
+      animationShownFrac = -1;
+    }
+
+    if (mode === "animation") {
       canvas.style.display = "none";
+      // Neither layer has anything to show until its first frame loads, so
+      // whenever they're blank, body's own theme background-image shows
+      // through underneath as the fallback, rather than a flat/blank color.
+      layerA.style.display = "block";
+      layerB.style.display = "block";
+      const doc = document.documentElement;
+      const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+      const fraction = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+      const priorityIndex = Math.round(fraction * (CONFIG.ANIMATION_FRAME_COUNT - 1));
+      preloadAnimationFrames(priorityIndex);
+      updateAnimationFrame();
       return;
     }
     canvas.style.display = "block";
@@ -757,13 +947,20 @@
   // Redraw with the new palette whenever the light/dark theme changes
   // (the theme toggle sets this attribute elsewhere).
   new MutationObserver(() => {
-    if (mode !== "image") draw();
+    if (mode !== "animation") draw();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   window.addEventListener("resize", resizeCanvas);
 
+  // "animation" mode's whole mechanism: scrolling picks the frame (see
+  // updateAnimationFrame — a no-op in every other mode). A window resize
+  // can also change the page's total scrollable height without the
+  // scroll position itself moving, so it needs the same recheck.
+  window.addEventListener("scroll", updateAnimationFrame, { passive: true });
+  window.addEventListener("resize", updateAnimationFrame);
+
   if (localStorage.getItem(HINT_DISMISSED_KEY) === "1") dismissHint();
 
   resizeCanvas();
-  applyMode(mode, { persist: false });
+  applyMode(mode, { userInitiated: false });
 })();
