@@ -29,7 +29,47 @@
 </head>
 <body>
 
+<!-- Interactive backdrop: hidden (display:none) in "image" mode, where the
+     plain CSS background-image above shows through instead. See
+     background-live.js for the Voronoi/Delaunay logic. -->
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<button id="bg-mode-toggle" class="theme-toggle bg-mode-toggle" type="button" aria-label="Switch backdrop mode">🖼️</button>
 <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch between light and dark theme">🌙</button>
+
+<!-- Only shown in "voronoi" mode (see applyMode() in background-live.js),
+     sitting right below the two corner buttons. A single on/off setting
+     reads more usably as a checkbox than a lone radio button, which can't
+     be toggled back off by clicking it again. -->
+<div id="voronoi-controls" class="bg-controls-panel" hidden>
+  <label class="bg-controls-row">
+    <input type="checkbox" id="voronoi-smooth-checkbox" />
+    smooth
+  </label>
+  <label class="bg-controls-row">
+    drag
+    <input type="number" id="voronoi-drag-distance" min="1" max="200" step="1" />
+    px
+  </label>
+</div>
+
+<!-- Only shown in "circles" mode. "repulse" is a different kind of
+     smoothing than Voronoi's "smooth": overlapping clusters gently push
+     each other apart instead of relaxing points toward Voronoi-cell
+     centroids. -->
+<div id="circles-controls" class="bg-controls-panel" hidden>
+  <label class="bg-controls-row">
+    <input type="checkbox" id="circle-repulse-checkbox" />
+    repulse
+  </label>
+</div>
+
+<!-- Nudge sitting just below the two corner buttons above; blinks slowly
+     until either button is used, then disappears (and stays hidden, via
+     localStorage). See dismissHint() in background-live.js. -->
+<div id="bg-hint" class="bg-hint" aria-hidden="true">
+  <div class="bg-hint-box">try these out!</div>
+</div>
 
 <main>
   <div class="content">
@@ -72,6 +112,14 @@
       <div class="entry-list" id="code-projects-list"></div>
     </section>
 
+    <section id="other-projects" aria-labelledby="other-projects-h">
+      <div class="section-heading">
+        <h2 id="other-projects-h">Other Projects</h2>
+        <span class="section-count mono" id="other-projects-count">00</span>
+      </div>
+      <div class="entry-list" id="other-projects-list"></div>
+    </section>
+
     <section id="awards" aria-labelledby="awards-h">
       <div class="section-heading">
         <h2 id="awards-h">Awards & Funding</h2>
@@ -94,6 +142,8 @@
   </div>
 </main>
 
+<script src="vendor/d3-delaunay.min.js"></script>
+<script src="background-live.js"></script>
 <script src="data.js"></script>
 <script src="script.js"></script>
 </body>

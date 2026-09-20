@@ -138,6 +138,12 @@ main {
   background: var(--paper);
   box-shadow: var(--content-shadow);
   padding: 56px var(--gutter) 80px;
+  /* Explicitly stacked above #bg-canvas (z-index: 0) — see the comment
+     there for why this pair of non-negative z-indices, rather than a
+     negative one on the canvas, is what actually makes the backdrop
+     clickable in its margins while staying behind the visible card. */
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 860px) {
@@ -174,6 +180,141 @@ main {
 
 .theme-toggle:hover {
   border-color: var(--accent);
+}
+
+/* The backdrop-mode button sits just to the left of the theme toggle. */
+.bg-mode-toggle {
+  right: 68px;
+}
+
+/* Per-mode controls panel — one instance for "voronoi" (#voronoi-controls:
+   "smooth" + "drag") and one for "circles" (#circles-controls: "repulse"),
+   each shown only in its own mode (toggled via the [hidden] attribute in
+   applyMode(), background-live.js) — never both at once, since only one
+   mode is ever active. Sits right below the two round buttons, same spot
+   the "try these out!" hint uses (also never at the same time as that:
+   switching mode requires clicking a button, which already dismisses the
+   hint for good). */
+.bg-controls-panel {
+  position: fixed;
+  top: 62px;
+  right: 12px;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--content-shadow);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+/* Belt and suspenders: a plain class selector's specificity ties with the
+   UA stylesheet's [hidden] rule, and ours is declared later in the
+   cascade, so without this explicit override the panel could stay
+   visible even while [hidden] is set on it. */
+.bg-controls-panel[hidden] {
+  display: none;
+}
+
+.bg-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.bg-controls-row input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.bg-controls-row input[type="number"] {
+  width: 52px;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 2px 6px;
+  cursor: text;
+}
+
+/* "try these out!" nudge, sitting right below the two corner buttons.
+   Pure decoration (pointer-events is off so it never blocks a click) —
+   blinks slowly to draw the eye until either button is used, then just
+   disappears — see dismissHint() in background-live.js. */
+.bg-hint {
+  position: fixed;
+  top: 62px;
+  right: 12px;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.bg-hint.is-hidden {
+  display: none;
+}
+
+.bg-hint-box {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-style: italic;
+  /* Always literal black/white (not the theme's --paper, which is an
+     off-black/off-white) so it pops against the colorful backdrop
+     underneath, in either theme. */
+  background: #000;
+  color: #fff;
+  box-shadow: var(--content-shadow);
+  animation: bg-hint-blink 1.8s ease-in-out infinite;
+}
+
+:root[data-theme="light"] .bg-hint-box {
+  background: #fff;
+  color: #000;
+}
+
+@keyframes bg-hint-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Interactive backdrop canvas (Voronoi / Delaunay-circles modes) — see
+   background-live.js. Hidden by default; shown only while one of those
+   modes is active, at which point it fully replaces the plain
+   background-image on body (drawing its own solid --paper fill each
+   frame).
+
+   Deliberately z-index: 0 rather than a negative value: a NEGATIVE
+   z-index on a fixed/absolute element paints it behind <body>'s own box
+   in the stacking order, even though body has no visible background —
+   body (and main, and anything else non-positioned) still sits in a
+   higher paint layer and silently swallows every click across its full
+   invisible box. Using 0 here (a normal, non-negative stacking level)
+   and promoting .content to z-index: 1 gets the same visual result —
+   canvas behind the content card — while keeping the canvas reachable
+   by clicks everywhere main's transparent padding would otherwise have
+   intercepted them.
+--------------------------------------------------------------------- */
+#bg-canvas {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  touch-action: none;
 }
 
 /* ---------------------------------------------------------------------

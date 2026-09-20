@@ -162,6 +162,37 @@ function renderCodeProjects() {
   });
 }
 
+/* ---------------------------------------------------------------------
+   Other Projects — same row layout as Code Projects, for things that
+   aren't primarily a codebase (apps, tools, one-off builds, ...).
+--------------------------------------------------------------------- */
+function renderOtherProjects() {
+  const root = document.getElementById("other-projects-list");
+  if (!root) return;
+  renderCount("other-projects-count", OTHER_PROJECTS.length);
+  OTHER_PROJECTS.forEach((proj) => {
+    const row = el("div", `entry${proj.status === "archived" ? " is-archived" : ""}`);
+    const main = el("div", "entry-main");
+    main.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
+    main.appendChild(el("div", "entry-title", proj.name));
+    main.appendChild(el("div", "entry-desc", proj.description));
+    if (proj.link) {
+      const links = el("div", "entry-links");
+      links.appendChild(externalLink(proj.link, "Visit ↗"));
+      main.appendChild(links);
+    }
+    if (proj.tags && proj.tags.length) {
+      const tags = el("div", "entry-tags");
+      proj.tags.forEach((t) => tags.appendChild(el("span", "tag", t)));
+      main.appendChild(tags);
+    }
+    if (proj.image) row.appendChild(thumb(proj.image));
+    row.appendChild(main);
+    root.appendChild(row);
+  });
+  hideSectionIfEmpty("other-projects", OTHER_PROJECTS.length === 0);
+}
+
 function renderAwards() {
   const root = document.getElementById("awards-list");
   if (!root) return;
@@ -260,6 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAbout();
   renderPapers();
   renderCodeProjects();
+  renderOtherProjects();
   renderAwards();
   renderExperience();
   initThemeToggle();

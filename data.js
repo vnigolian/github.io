@@ -150,6 +150,23 @@ const CODE_PROJECTS = [
   // used only to fade archived items slightly, not to hide them.
 ];
 
+// Same shape as CODE_PROJECTS (name, description, link, tags, status,
+// image) but for anything that isn't itself a piece of code you'd point a
+// recruiter/collaborator at as engineering work — apps, tools, one-off
+// builds, etc. Empty for now; the section hides itself automatically
+// until you add something (see hideSectionIfEmpty in script.js).
+const OTHER_PROJECTS = [
+  {
+    name: "NIFFF Planner",
+    description:
+      "Simple tool to schudle your screenings at the next <a href=https://nifff.ch>NIFFF</a>.",
+    link: "https://vnigolian.github.io/NIFFF-Planner/site/",
+    tags: ["Film Festival", "vibe coding"],
+    status: "active",
+    image: "images/nifff-planner.png",
+  },
+];
+
 
 
 const AWARDS = [
