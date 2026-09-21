@@ -63,10 +63,10 @@
     VORONOI_DRAG_MIN_DISTANCE: 5,
 
     CIRCLE_COUNT: 20, // number of draggable circles in "circles" mode
-    CIRCLE_MIN_RADIUS: 36,
-    CIRCLE_RADIUS_RANGE: 70, // circle radius = MIN_RADIUS + random()*RANGE
-    CIRCLE_MIN_VERTICES: 8, // random boundary-vertex count, inclusive
-    CIRCLE_MAX_VERTICES: 12, // random boundary-vertex count, inclusive
+    CIRCLE_MIN_RADIUS: 30,
+    CIRCLE_RADIUS_RANGE: 100, // circle radius = MIN_RADIUS + random()*RANGE
+    CIRCLE_MIN_VERTICES: 6, // random boundary-vertex count, inclusive
+    CIRCLE_MAX_VERTICES: 16, // random boundary-vertex count, inclusive
     HIDDEN_POINT_DENSITY: 10000, // lower = more hidden Voronoi-basis points
     // Extra points scattered OUTSIDE the canvas (as a fraction of
     // width/height beyond each edge), so the triangulation's outer
@@ -178,7 +178,16 @@
   // particular mode by hand during a previous visit. Toggling during THIS
   // visit still switches modes normally; it just doesn't carry over to the
   // next reload.
-  let mode = MODES[Math.floor(Math.random() * MODES.length)];
+  //
+  // The actual random pick happens in index.html's <head>, before first
+  // paint (see window.__initialBgMode there) — that's what lets
+  // html[data-bg-mode] in styles.css hide body's static background-image
+  // from the very first frame for voronoi/circles, instead of it flashing
+  // once before this script even runs. Falling back to a fresh random
+  // pick here too in case that inline script is ever missing/blocked.
+  let mode = MODES.includes(window.__initialBgMode)
+    ? window.__initialBgMode
+    : MODES[Math.floor(Math.random() * MODES.length)];
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -759,6 +768,15 @@
     mode = MODES.includes(next) ? next : MODES[0];
     if (userInitiated) dismissHint();
 
+    // Keep the pre-first-paint attribute (see index.html/styles.css) in
+    // sync with whatever mode actually ends up active — otherwise
+    // switching mode by hand would leave it pointing at a stale mode, and
+    // the html[data-bg-mode="voronoi"/"circles"] CSS rule that hides
+    // body's background-image would apply (or fail to apply) for the
+    // wrong mode, e.g. hiding animation's own loading fallback after
+    // toggling away from voronoi.
+    document.documentElement.dataset.bgMode = mode;
+
     if (modeBtn) {
       modeBtn.textContent = MODE_ICON[mode];
       modeBtn.title = MODE_LABEL[mode];
@@ -962,5 +980,22 @@
   if (localStorage.getItem(HINT_DISMISSED_KEY) === "1") dismissHint();
 
   resizeCanvas();
+
+  // Start warming the animation frame cache right away, regardless of
+  // which mode the page actually starts in — not just once "animation" is
+  // entered. preloadAnimationFrames no-ops on every call after its first,
+  // so this is free if the page never ends up in "animation" mode at all,
+  // but it means that by the time it IS entered (whether that's the
+  // random starting mode or a later manual toggle), the first frame or
+  // two already has a head start on downloading+decoding instead of
+  // starting from zero — shrinking the window where there's nothing to
+  // show yet but body's own static background-image.
+  {
+    const doc = document.documentElement;
+    const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const fraction = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    preloadAnimationFrames(Math.round(fraction * (CONFIG.ANIMATION_FRAME_COUNT - 1)));
+  }
+
   applyMode(mode, { userInitiated: false });
 })();

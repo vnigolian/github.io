@@ -88,6 +88,20 @@ body {
   background-repeat: no-repeat;
 }
 
+/* The inline script in index.html's <head> picks the random starting
+   backdrop mode before first paint and stores it as html[data-bg-mode].
+   "voronoi"/"circles" fully replace body's background with the canvas the
+   moment background-live.js runs (see #bg-canvas below) — but that's a
+   beat after the page's first paint, so without this rule body's own
+   static photo would still get one visible frame first. Hiding it here,
+   keyed off the same attribute, means that frame never happens. Left
+   alone for "animation": there, body's photo is the deliberate fallback
+   while frames are loading, so it should keep showing at first paint. */
+html[data-bg-mode="voronoi"] body,
+html[data-bg-mode="circles"] body {
+  background-image: none;
+}
+
 img {
   max-width: 100%;
   display: block;

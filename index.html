@@ -25,6 +25,25 @@
     var saved = localStorage.getItem("theme");
     document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
   })();
+
+  // Picks the random starting backdrop mode before first paint too (rather
+  // than leaving it to background-live.js, which only runs after the page
+  // has already been parsed and painted at least once) — and stores it on
+  // window so background-live.js reads this SAME pick instead of rolling
+  // its own, since they'd otherwise disagree. Without this, body's own
+  // static background-image always got one brief paint before the
+  // interactive backdrop (voronoi/circles canvas, or the animation layers)
+  // replaced it a beat later — visible as a ~0.1s flash of the photo on
+  // every load, even for modes that never show it at all. The
+  // html[data-bg-mode=...] rule in styles.css uses this same attribute to
+  // hide body's background-image from the very first paint for those
+  // modes. Keep this array in sync with MODES in background-live.js.
+  (function () {
+    var MODES = ["voronoi", "circles", "animation"];
+    var mode = MODES[Math.floor(Math.random() * MODES.length)];
+    window.__initialBgMode = mode;
+    document.documentElement.dataset.bgMode = mode;
+  })();
 </script>
 </head>
 <body>
