@@ -60,7 +60,7 @@
     // is added every time it has moved this many pixels since the last
     // one dropped (a plain click with no movement still drops exactly
     // one point, at pointerdown).
-    VORONOI_DRAG_MIN_DISTANCE: 5,
+    VORONOI_DRAG_MIN_DISTANCE: 50,
 
     CIRCLE_COUNT: 20, // number of draggable circles in "circles" mode
     CIRCLE_MIN_RADIUS: 30,
