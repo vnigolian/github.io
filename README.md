@@ -1,4 +1,6 @@
-# vnigolian.github.io
+# Homepage
+
+Accessible here: https://vnigolian.github.io/
 
 ## TODOS
 * add a "cool stuff" section, with e.g. the NOBUENOSS
