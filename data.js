@@ -114,7 +114,7 @@ const PAPERS = [
     authors:
       "Valentin Z. Nigolian, Mehmet Mutlu, Simon Hauser, Alexandre Bernardino, Auke J. Ijspeert",
     link: "https://www.epfl.ch/labs/biorob/students/past/page-128174-en-html/",
-    pdf: "papers/roombots-vr.pdf",
+    pdf: "papers/nigolian-roman2017.pdf",
     image: "images/papers/roman-teaser.png",
     abstract:
       "Roombots are self-reconfigurable modular robots. They are one of the current projects of BioRob, the Biorobotics Laboratory at EPFL. Its main purpose is to create self-reconfigurable adaptive furniture and has many applications. One of them is to make disabled people more independent by providing a smart interface adapted to their daily physical challenges, allowing them to move their furniture by themselves through the use of Roombots. This project explores new ways to interact with modular robots by using a gesture-based interface with a Virtual Reality (VR) visual feed-back, for a more immersive apprehension of the virtual world. The goal is to enable the user to quickly set up a room using furniture made out of Roombots modules and then finally visualize the Roombots building the desired furnitures.",
