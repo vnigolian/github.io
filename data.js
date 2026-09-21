@@ -53,7 +53,7 @@ const PAPERS = [
     // Hosted locally — run fetch-assets.sh (or grab it manually, see the
     // README) to populate papers/deformation-maps.pdf from the source URL:
     // https://www.algohex.eu/publications/deformation-maps/boundary-deformation-maps-sga-2026.pdf
-    pdf: "papers/deformation-maps.pdf",
+    pdf:"https://www.algohex.eu/publications/deformation-maps/boundary-deformation-maps-sga-2026.pdf",
     image: "images/papers/deformation-maps-teaser.png",
     abstract:
       "We introduce a novel framework to generate piecewise linear tetrahedral maps, by expressing the map-finding problem as a constrained mesh deformation problem, where constraints satisfaction implies both injectivity and target shape conformity. Deformation is supported by the two core components of our approach: First, an augmentation of the mesh by boundary-incident virtual elements, encoding the target shape in a differential manner via its first and second fundamental form; in contrast to position-driven approaches this prevents optimisation failure due to improper winding. Second, a remeshing scheme maintaining mesh element quality and preventing blocking configurations. A first implementation is empirically shown to have higher robustness and/or higher efficiency than state-of-the-art methods on challenging, yet practically relevant inputs. We illustrate our method's versatility in a range of applications, demonstrating its value as a new item in the algorithmic toolbox for volumetric mapping.",
