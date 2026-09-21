@@ -26,28 +26,21 @@
     document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
   })();
 
-  // Picks the random starting backdrop mode before first paint too (rather
-  // than leaving it to background-live.js, which only runs after the page
-  // has already been parsed and painted at least once) — and stores it on
-  // window so background-live.js reads this SAME pick instead of rolling
-  // its own, since they'd otherwise disagree. Without this, body's own
-  // static background-image always got one brief paint before the
-  // interactive backdrop (voronoi/circles canvas, or the animation layers)
-  // replaced it a beat later — visible as a ~0.1s flash of the photo on
-  // every load, even for modes that never show it at all. The
-  // html[data-bg-mode=...] rule in styles.css uses this same attribute to
-  // hide body's background-image from the very first paint for those
-  // modes. Keep this array in sync with MODES in background-live.js.
+  // Sets the starting backdrop mode ("animation", always) before first
+  // paint too (rather than leaving it to background-live.js, which only
+  // runs after the page has already been parsed and painted at least
+  // once) — and stores it on window so background-live.js reads this SAME
+  // value instead of hardcoding its own copy. The html[data-bg-mode=...]
+  // rule in styles.css uses this same attribute to hide body's static
+  // background-image from the very first paint for voronoi/circles, in
+  // case the mode is later switched to one of those before this script's
+  // own first draw — animation mode itself deliberately leaves body's
+  // photo showing, as its own loading-fallback.
   (function () {
-    var MODES = ["voronoi", "circles", "animation"];
-    var mode = MODES[Math.floor(Math.random() * MODES.length)];
-    window.__initialBgMode = mode;
-    document.documentElement.dataset.bgMode = mode;
+    window.__initialBgMode = "animation";
+    document.documentElement.dataset.bgMode = "animation";
   })();
 </script>
-
-<script data-goatcounter="https://vnigolian.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 
@@ -97,11 +90,26 @@
   </label>
 </div>
 
-<!-- Nudge sitting just below the two corner buttons above; blinks slowly
-     until either button is used, then disappears (and stays hidden, via
-     localStorage). See dismissHint() in background-live.js. -->
+<!-- Three-stage hint, entirely in-memory (see the hintStage state machine
+     in background-live.js) — always starts here on every reload, hard or
+     soft, nothing persisted:
+       1. This one ("try these out!"), sitting just below the two corner
+          buttons, blinking slowly.
+       2. Once either corner button has actually been used, this one hides
+          and #bg-click-hint below takes over instead (only actually shown
+          while in "voronoi"/"circles" mode though, since "animation"
+          doesn't respond to clicking the backdrop at all).
+       3. Once the backdrop itself has been clicked at least once, that one
+          disappears too, for the rest of this visit. -->
 <div id="bg-hint" class="bg-hint" aria-hidden="true">
   <div class="bg-hint-box">try these out!</div>
+</div>
+
+<!-- Stage 2 of the hint above — sitting to the LEFT of the two corner
+     buttons instead of below them. See updateHintVisibility() in
+     background-live.js. -->
+<div id="bg-click-hint" class="bg-click-hint" aria-hidden="true" hidden>
+  <div class="bg-click-hint-box">click anywhere on the background!</div>
 </div>
 
 <main>

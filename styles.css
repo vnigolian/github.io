@@ -170,10 +170,20 @@ main {
 }
 
 /* ---------------------------------------------------------------------
-   Theme toggle — fixed corner button, dark is the default theme
+   Theme toggle — corner button, dark is the default theme.
+
+   position: absolute rather than fixed (also true of .bg-controls-panel,
+   .bg-hint and .bg-click-hint below) — scrolls away with the rest of the
+   page instead of staying pinned to the viewport. On a phone-sized
+   screen a pinned button/hint sits on top of the content underneath it
+   for the entire scroll, which is much more of a nuisance than on
+   desktop; scrolling it away with the page (it's only ever needed near
+   the top anyway, right when the backdrop is first seen) avoids that.
+   The backdrop itself (#bg-canvas, .bg-anim-layer) stays position: fixed
+   — only this UI chrome moves.
 --------------------------------------------------------------------- */
 .theme-toggle {
-  position: fixed;
+  position: absolute;
   top: 20px;
   right: 20px;
   z-index: 10;
@@ -210,7 +220,7 @@ main {
    switching mode requires clicking a button, which already dismisses the
    hint for good). */
 .bg-controls-panel {
-  position: fixed;
+  position: absolute;
   top: 62px;
   right: 12px;
   z-index: 9;
@@ -263,9 +273,9 @@ main {
 /* "try these out!" nudge, sitting right below the two corner buttons.
    Pure decoration (pointer-events is off so it never blocks a click) —
    blinks slowly to draw the eye until either button is used, then just
-   disappears — see dismissHint() in background-live.js. */
+   disappears — see advanceHintTo() in background-live.js. */
 .bg-hint {
-  position: fixed;
+  position: absolute;
   top: 62px;
   right: 12px;
   z-index: 9;
@@ -303,6 +313,48 @@ main {
   50% {
     opacity: 0.3;
   }
+}
+
+/* Persistent "click anywhere..." reminder — see updateClickHint() in
+   background-live.js. Unlike .bg-hint above (which nudges once, below the
+   buttons, then vanishes for good), this one sticks around for as long as
+   a click-driven mode ("voronoi"/"circles") stays active, sitting to the
+   LEFT of the two corner buttons instead. Only "right" is set (no width),
+   so it hugs the buttons and grows further left as needed for the text —
+   same reasoning as .theme-toggle/.bg-mode-toggle being corner-anchored. */
+.bg-click-hint {
+  position: absolute;
+  top: 20px;
+  right: 116px;
+  z-index: 9;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.bg-click-hint[hidden] {
+  display: none;
+}
+
+.bg-click-hint-box {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-style: italic;
+  white-space: nowrap;
+  /* Same literal black/white treatment as .bg-hint-box, for the same
+     reason: needs to pop against whichever colorful backdrop is behind it
+     in either theme. */
+  background: #000;
+  color: #fff;
+  box-shadow: var(--content-shadow);
+}
+
+:root[data-theme="light"] .bg-click-hint-box {
+  background: #fff;
+  color: #000;
 }
 
 /* ---------------------------------------------------------------------

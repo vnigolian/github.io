@@ -1,7 +1,7 @@
 /**
- * Interactive backdrop: three modes, cycled by the #bg-mode-toggle button
- * and picked at random on every page load (see the `mode` initializer
- * below) rather than remembered.
+ * Interactive backdrop: three modes, cycled by the #bg-mode-toggle button.
+ * Every page load always starts in "animation" (see the `mode` initializer
+ * below) — nothing is remembered across reloads.
  *
  *   "voronoi"  — a live Voronoi diagram. Click anywhere on the backdrop
  *                to drop a new point, or press and drag to lay down a
@@ -60,13 +60,13 @@
     // is added every time it has moved this many pixels since the last
     // one dropped (a plain click with no movement still drops exactly
     // one point, at pointerdown).
-    VORONOI_DRAG_MIN_DISTANCE: 50,
+    VORONOI_DRAG_MIN_DISTANCE: 5,
 
     CIRCLE_COUNT: 20, // number of draggable circles in "circles" mode
-    CIRCLE_MIN_RADIUS: 30,
-    CIRCLE_RADIUS_RANGE: 100, // circle radius = MIN_RADIUS + random()*RANGE
-    CIRCLE_MIN_VERTICES: 6, // random boundary-vertex count, inclusive
-    CIRCLE_MAX_VERTICES: 16, // random boundary-vertex count, inclusive
+    CIRCLE_MIN_RADIUS: 36,
+    CIRCLE_RADIUS_RANGE: 70, // circle radius = MIN_RADIUS + random()*RANGE
+    CIRCLE_MIN_VERTICES: 8, // random boundary-vertex count, inclusive
+    CIRCLE_MAX_VERTICES: 12, // random boundary-vertex count, inclusive
     HIDDEN_POINT_DENSITY: 10000, // lower = more hidden Voronoi-basis points
     // Extra points scattered OUTSIDE the canvas (as a fraction of
     // width/height beyond each edge), so the triangulation's outer
@@ -126,7 +126,7 @@
     // an immediate recompute regardless of this counter, since reusing
     // stale connectivity across a point-count change would index past the
     // end of the point array.
-    CIRCLE_RETRIANGULATE_EVERY_N_FRAMES: 20,
+    CIRCLE_RETRIANGULATE_EVERY_N_FRAMES: 10,
 
     // "animation" mode: a numbered sequence of background images, scrubbed
     // by scroll position instead of time — scrolling from the top of the
@@ -160,6 +160,7 @@
   const repulseCheckbox = document.getElementById("circle-repulse-checkbox");
   const layerA = document.getElementById("bg-anim-layer-a");
   const layerB = document.getElementById("bg-anim-layer-b");
+  const clickHint = document.getElementById("bg-click-hint");
   if (!canvas || typeof d3 === "undefined") return;
   const ctx = canvas.getContext("2d");
 
@@ -172,22 +173,19 @@
   };
   const MODE_CURSOR = { voronoi: "crosshair", circles: "grab", animation: "default" };
 
-  // Every page load starts from a random one of these modes — no saved
-  // preference is read or written for it, so reloading (or opening in a
-  // new tab) gets a fresh random pick every time, even after toggling to a
-  // particular mode by hand during a previous visit. Toggling during THIS
-  // visit still switches modes normally; it just doesn't carry over to the
-  // next reload.
+  // Every page load always starts in "animation" — no saved preference is
+  // read or written for it, so reloading (or opening in a new tab) always
+  // lands back here, even after toggling to a particular mode by hand
+  // during a previous visit. Toggling during THIS visit still switches
+  // modes normally; it just doesn't carry over to the next reload.
   //
-  // The actual random pick happens in index.html's <head>, before first
-  // paint (see window.__initialBgMode there) — that's what lets
+  // index.html's <head> sets this same starting mode before first paint
+  // too (see window.__initialBgMode there) — that's what lets
   // html[data-bg-mode] in styles.css hide body's static background-image
   // from the very first frame for voronoi/circles, instead of it flashing
-  // once before this script even runs. Falling back to a fresh random
-  // pick here too in case that inline script is ever missing/blocked.
-  let mode = MODES.includes(window.__initialBgMode)
-    ? window.__initialBgMode
-    : MODES[Math.floor(Math.random() * MODES.length)];
+  // once before this script even runs. Falling back to "animation" here
+  // too in case that inline script is ever missing/blocked.
+  let mode = MODES.includes(window.__initialBgMode) ? window.__initialBgMode : "animation";
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -746,27 +744,50 @@
     if (mode !== "animation") draw();
   }
 
-  // Bumped from "bgHintDismissed" when the hint's design changed (closer
-  // to the buttons, no arrow, blinking) — otherwise anyone who'd already
-  // dismissed the old version would never see the new one at all, with
-  // no visible cause (looks exactly like a rendering bug).
-  const HINT_DISMISSED_KEY = "bgHintDismissedV2";
+  // Three-stage hint, entirely in-memory (not persisted anywhere) — every
+  // reload, hard or soft, always starts back at "try":
+  //   "try"   — the "try these out!" nudge below the corner buttons.
+  //   "click" — swapped in once a mode has actually been picked (the
+  //             toggle button, or the theme button, counts as "trying it
+  //             out") — "click anywhere on the background!", to the left
+  //             of the buttons instead. Only actually shown while the
+  //             current mode is "voronoi"/"circles" though (see
+  //             updateHintVisibility) — not "animation", which doesn't
+  //             respond to clicking the backdrop at all.
+  //   "none"  — once the backdrop itself has been clicked at least once
+  //             (see the canvas pointerdown handler below), gone for the
+  //             rest of this visit.
+  let hintStage = "try";
 
-  function dismissHint() {
-    const hint = document.getElementById("bg-hint");
-    if (!hint) return;
-    hint.classList.add("is-hidden");
-    localStorage.setItem(HINT_DISMISSED_KEY, "1");
+  // Applies hintStage (and the current mode, for the "click" stage) to the
+  // actual DOM — called both whenever hintStage advances and whenever the
+  // mode changes, since either one can flip whether #bg-click-hint should
+  // be showing.
+  function updateHintVisibility() {
+    const tryHint = document.getElementById("bg-hint");
+    if (tryHint) tryHint.classList.toggle("is-hidden", hintStage !== "try");
+    if (clickHint) {
+      const clickableMode = mode === "voronoi" || mode === "circles";
+      clickHint.hidden = !(hintStage === "click" && clickableMode);
+    }
+  }
+
+  function advanceHintTo(stage) {
+    // Only ever moves forward (try -> click -> none), never back.
+    const order = ["try", "click", "none"];
+    if (order.indexOf(stage) <= order.indexOf(hintStage)) return;
+    hintStage = stage;
+    updateHintVisibility();
   }
 
   function applyMode(next, opts) {
-    // Not persisted to localStorage anymore (see the `mode` initializer
-    // above) — `userInitiated` just controls whether this counts as the
-    // person actually interacting with the toggle, for dismissing the
-    // "try these out" hint.
+    // `userInitiated` controls whether this counts as the person actually
+    // picking a mode by hand (vs. the initial, always-"animation" setup
+    // call at the bottom of this file) — see advanceHintTo above.
     const userInitiated = !opts || opts.userInitiated !== false;
     mode = MODES.includes(next) ? next : MODES[0];
-    if (userInitiated) dismissHint();
+    if (userInitiated) advanceHintTo("click");
+    updateHintVisibility(); // advanceHintTo already covers this when userInitiated, but mode itself may also have just changed
 
     // Keep the pre-first-paint attribute (see index.html/styles.css) in
     // sync with whatever mode actually ends up active — otherwise
@@ -827,6 +848,11 @@
   }
 
   canvas.addEventListener("pointerdown", (evt) => {
+    // The canvas is only ever visible/interactive in "voronoi"/"circles"
+    // (see applyMode), so any pointerdown reaching it already means the
+    // backdrop itself has been clicked — advance the hint straight to
+    // "none" regardless of which of those two modes this is.
+    advanceHintTo("none");
     if (mode === "voronoi") {
       // A plain click (no movement before release) still drops exactly
       // one point, right here at pointerdown; pointermove below adds
@@ -958,9 +984,9 @@
   }
 
   // The theme toggle also counts as "trying it out" for the purposes of
-  // the hint, even though it doesn't touch bgMode.
+  // the hint, even though it doesn't touch mode.
   const themeBtn = document.getElementById("theme-toggle");
-  if (themeBtn) themeBtn.addEventListener("click", dismissHint, { once: true });
+  if (themeBtn) themeBtn.addEventListener("click", () => advanceHintTo("click"), { once: true });
 
   // Redraw with the new palette whenever the light/dark theme changes
   // (the theme toggle sets this attribute elsewhere).
@@ -976,8 +1002,6 @@
   // scroll position itself moving, so it needs the same recheck.
   window.addEventListener("scroll", updateAnimationFrame, { passive: true });
   window.addEventListener("resize", updateAnimationFrame);
-
-  if (localStorage.getItem(HINT_DISMISSED_KEY) === "1") dismissHint();
 
   resizeCanvas();
 
