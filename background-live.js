@@ -55,12 +55,12 @@
     // inverted (see insideEdgeColor()), so circle interiors read as a
     // distinct "cut-out" from the rest of the mesh.
 
-    VORONOI_POINT_RADIUS: 3.5,
+    VORONOI_POINT_RADIUS: 5,
     // While the mouse/finger is held down in "voronoi" mode, a new point
     // is added every time it has moved this many pixels since the last
     // one dropped (a plain click with no movement still drops exactly
     // one point, at pointerdown).
-    VORONOI_DRAG_MIN_DISTANCE: 5,
+    VORONOI_DRAG_MIN_DISTANCE: 50,
 
     CIRCLE_COUNT: 20, // number of draggable circles in "circles" mode
     CIRCLE_MIN_RADIUS: 36,
