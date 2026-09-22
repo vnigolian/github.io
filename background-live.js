@@ -140,6 +140,18 @@
     ANIMATION_FRAME_COUNT: 50,
     ANIMATION_FRAME_PAD: 4,
     ANIMATION_FRAME_EXT: ".jpg",
+    // Frames aren't all fetched at once — see preloadAnimationFrames. This
+    // many (nearest to wherever the page happens to be scrolled to) start
+    // downloading immediately, in one burst; the rest only start once that
+    // burst has actually landed. Fetching all of them at once means every
+    // frame splits the same bandwidth, so even the handful actually needed
+    // right away take longer to arrive than they would alone — this is
+    // what caused flickering/incomplete frames the first time someone
+    // scrolled, before the whole set had finished loading. A small burst
+    // first means those frames land fast and uncontested, "buffering" a
+    // stretch of scrollable animation before the rest trickle in behind
+    // it for whenever the person scrolls further than that.
+    ANIMATION_PRELOAD_BURST_COUNT: 10,
   };
 
   // Restore a previously-set drag distance, if any (see the "drag" number
@@ -277,31 +289,28 @@
     return CONFIG.ANIMATION_FRAME_DIR + num + CONFIG.ANIMATION_FRAME_EXT;
   }
 
-  // Kicks off every frame's download exactly once (an <img> starts
-  // fetching the moment its .src is set, whether or not it's ever
+  // Kicks off ONE frame's download, exactly once per index (an <img>
+  // starts fetching the moment its .src is set, whether or not it's ever
   // inserted into the page, and the browser caches the result — so a
   // later CSS background-image referencing the same URL paints instantly
-  // instead of re-fetching). Frames are requested nearest-to-`priorityIndex`
-  // first: with a large frame count, the browser can only fetch so many at
-  // once, so this makes sure whichever frame the page is ACTUALLY showing
-  // right now (or about to, immediately after switching into this mode)
-  // is among the very first to arrive, rather than being queued behind a
-  // hundred others in plain file order.
-  function preloadAnimationFrames(priorityIndex) {
-    if (animationFramesPreloaded) return;
-    animationFramesPreloaded = true;
-    const order = [];
-    for (let i = 0; i < CONFIG.ANIMATION_FRAME_COUNT; i++) order.push(i);
-    order.sort((a, b) => Math.abs(a - priorityIndex) - Math.abs(b - priorityIndex));
-    animationImages = new Array(CONFIG.ANIMATION_FRAME_COUNT);
-    order.forEach((i) => {
-      const entry = { img: new Image(), loaded: false };
+  // instead of re-fetching). Safe to call more than once for the same
+  // index — returns the same settle promise every time, without
+  // re-requesting, once animationImages[i] already exists.
+  //
+  // The returned promise resolves once this frame is either loaded (and
+  // decoded — see the onload handler) or has given up trying (onerror) —
+  // never rejects, so a single bad/missing frame file can't get stuck and
+  // block preloadAnimationFrames' second wave below forever.
+  function startFrameLoad(i) {
+    if (animationImages[i]) return animationImages[i].settled;
+    const entry = { img: new Image(), loaded: false };
+    entry.settled = new Promise((resolve) => {
       entry.img.onload = () => {
         // decode() finishes the actual pixel-decoding work before its
         // promise resolves, so painting the image right afterwards is
         // instant. Without this, marking a frame "loaded" straight off
-        // `onload` (which only means the bytes finished downloading) could
-        // still leave a still-undecoded image assigned as a CSS
+        // `onload` (which only means the bytes finished downloading)
+        // could still leave a still-undecoded image assigned as a CSS
         // background-image — and while it decodes, some browsers paint
         // that spot as if there were no background-image at all, letting
         // body's own static backdrop flash through for a frame. That's
@@ -313,11 +322,38 @@
           .then(() => {
             entry.loaded = true;
             updateAnimationFrame(); // in case frame i is exactly what's now needed
+            resolve();
           });
       };
-      entry.img.src = animationFramePath(i);
-      animationImages[i] = entry;
+      entry.img.onerror = resolve;
     });
+    entry.img.src = animationFramePath(i);
+    animationImages[i] = entry;
+    return entry.settled;
+  }
+
+  // Starts every frame downloading, nearest-to-`priorityIndex` first, but
+  // in two waves rather than all at once — see CONFIG.ANIMATION_PRELOAD_
+  // BURST_COUNT above for why. The first (small) wave starts immediately;
+  // the second only once every frame in the first has either finished
+  // loading or given up (see startFrameLoad's `settled` promise), so it
+  // never competes with the first wave for bandwidth. Scrolling ahead of
+  // both waves still works — see updateAnimationFrame, which calls
+  // startFrameLoad directly for whatever frame is actually needed,
+  // regardless of this schedule.
+  function preloadAnimationFrames(priorityIndex) {
+    if (animationFramesPreloaded) return;
+    animationFramesPreloaded = true;
+    const order = [];
+    for (let i = 0; i < CONFIG.ANIMATION_FRAME_COUNT; i++) order.push(i);
+    order.sort((a, b) => Math.abs(a - priorityIndex) - Math.abs(b - priorityIndex));
+    animationImages = new Array(CONFIG.ANIMATION_FRAME_COUNT);
+
+    const burstCount = Math.min(CONFIG.ANIMATION_PRELOAD_BURST_COUNT, order.length);
+    const burst = order.slice(0, burstCount);
+    const rest = order.slice(burstCount);
+
+    Promise.all(burst.map(startFrameLoad)).then(() => rest.forEach(startFrameLoad));
   }
 
   function isAnimationFrameLoaded(index) {
@@ -332,6 +368,12 @@
   // this, scrolling fast to a far-off frame before the initial preload
   // queue reaches it left that frame stuck behind everything else.
   function bumpFramePriority(index) {
+    // Also covers the case where this frame hasn't even started loading
+    // yet — e.g. it's part of the "rest" wave in preloadAnimationFrames,
+    // still waiting on the burst wave to finish. startFrameLoad is a
+    // no-op if it's already in flight, so this always ends up with an
+    // actual in-progress request to bump the priority of.
+    startFrameLoad(index);
     const entry = animationImages[index];
     if (entry && !entry.loaded) entry.img.fetchPriority = "high";
   }

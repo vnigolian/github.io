@@ -146,11 +146,14 @@ function renderCodeProjects() {
     main.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
     main.appendChild(el("div", "entry-title", proj.name));
     main.appendChild(el("div", "entry-desc", proj.description));
-    if (proj.link) {
-      const links = el("div", "entry-links");
-      links.appendChild(externalLink(proj.link, "Repository ↗"));
-      main.appendChild(links);
-    }
+    
+
+    const links = el("div", "entry-links");
+    if (proj.repo_link) links.appendChild(externalLink(proj.repo_link, "Repository ↗"));
+    if (proj.gui_link) links.appendChild(externalLink(proj.gui_link, "Web Interface ↗"));
+    main.appendChild(links);
+
+
     if (proj.tags && proj.tags.length) {
       const tags = el("div", "entry-tags");
       proj.tags.forEach((t) => tags.appendChild(el("span", "tag", t)));
@@ -176,11 +179,13 @@ function renderOtherProjects() {
     main.appendChild(el("div", "entry-year mono", proj.status === "archived" ? "archived" : "active"));
     main.appendChild(el("div", "entry-title", proj.name));
     main.appendChild(el("div", "entry-desc", proj.description));
-    if (proj.link) {
-      const links = el("div", "entry-links");
-      links.appendChild(externalLink(proj.link, "Visit ↗"));
-      main.appendChild(links);
-    }
+   
+  
+    const links = el("div", "entry-links");
+    if (proj.repo_link) links.appendChild(externalLink(proj.repo_link, "Repository ↗"));
+    if (proj.gui_link) links.appendChild(externalLink(proj.gui_link, "Web Interface ↗"));
+    main.appendChild(links);
+
     if (proj.tags && proj.tags.length) {
       const tags = el("div", "entry-tags");
       proj.tags.forEach((t) => tags.appendChild(el("span", "tag", t)));

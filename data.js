@@ -127,21 +127,20 @@ const PAPERS = [
 
 const CODE_PROJECTS = [
   {
-    name: "TetSweep (Coming VERY SOON)",
-    // Renaming tomorrow? Just change `name` — nothing else references the old one.
+    name: "TetSweep",
     description:
-      "A C++ library for generating tetrahedral meshes directly from parametric curves and surfaces, built around a shrink-and-expand boundary-deformation framework.",
-    link: "https://github.com/vnigolian/TetSweep",
+      "A C++ library for generating tetrahedral meshes directly from parametric curves and surfaces. Useful for stress-test remeshing-enabled tetrahedral mapping methods.",
+    repo_link: "https://github.com/vnigolian/TetSweep",
+    gui_link: "https://vnigolian.github.io/TetSweep/",
     tags: ["C++", "tetrahedral meshing"],
     status: "active",
     image: "images/para_helicoidal_ring.png"
   },
   {
     name: "Shrink-and-Expand",
-    // Renaming tomorrow? Just change `name` — nothing else references the old one.
     description:
       "Reference C++ implementation of the latest Shrink-and-Expand method (cf. paper above).",
-    link: "https://github.com/cgg-bern/cluster-mesh-SAE",
+    repo_link: "https://github.com/cgg-bern/cluster-mesh-SAE",
     tags: ["C++", "tetrahedral mapping"],
     status: "active",
     image: "images/papers/cluster-mesh-sae-teaser.png",
@@ -160,7 +159,8 @@ const OTHER_PROJECTS = [
     name: "NIFFF Planner",
     description:
       "Simple tool to schudle your screenings at the next <a href=https://nifff.ch>NIFFF</a>.",
-    link: "https://vnigolian.github.io/NIFFF-Planner/site/",
+    repo_link: "https://github.com/vnigolian/NIFFF-Planner",
+    gui_link: "https://vnigolian.github.io/NIFFF-Planner/site/",
     tags: ["Film Festival", "vibe coding"],
     status: "active",
     image: "images/nifff-planner.png",
